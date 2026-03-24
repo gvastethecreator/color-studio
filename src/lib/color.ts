@@ -4,6 +4,7 @@ import type {
   ColorFamily,
   ColorStep,
   GeneratorSettings,
+  PresetRegistry,
   PresetFamilyDefinition,
 } from '@/types/palette';
 
@@ -97,8 +98,13 @@ const computeSteps = (
   });
 };
 
-export const generatePalettes = (settings: GeneratorSettings): ColorFamily[] => {
-  const preset = PRESETS[settings.preset] ?? PRESETS.spectrum;
+export const generatePalettes = (
+  settings: GeneratorSettings,
+  presetRegistry: PresetRegistry = PRESETS,
+): ColorFamily[] => {
+  const fallbackPreset =
+    presetRegistry.spectrum ?? Object.values(presetRegistry)[0] ?? PRESETS.spectrum;
+  const preset = presetRegistry[settings.preset] ?? fallbackPreset;
 
   return preset.families.map((family) => {
     const override = settings.overrides[family.id] ?? DEFAULT_OVERRIDE;

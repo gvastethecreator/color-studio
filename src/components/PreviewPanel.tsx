@@ -1,4 +1,5 @@
 import { Activity, BarChart3, Bell, PieChart, Search, User } from 'lucide-react';
+import { getReadableTextColor } from '@/lib/accessibility';
 import type { ColorFamily, ColorStep } from '@/types/palette';
 
 interface PreviewPanelProps {
@@ -25,8 +26,9 @@ export default function PreviewPanel({ activeFamily }: PreviewPanelProps) {
   const border = getStep(colors, 3).css;
   const primary = getStep(colors, 5).css;
   const primaryHover = getStep(colors, 6).css;
-  const textDark = getStep(colors, 8).css;
-  const primaryText = getStep(colors, 5).l > 0.6 ? 'black' : 'white';
+  const mainText = getReadableTextColor(getStep(colors, 0).hex);
+  const cardText = getReadableTextColor(getStep(colors, 1).hex);
+  const primaryText = getReadableTextColor(getStep(colors, 5).hex);
 
   return (
     <div
@@ -44,7 +46,7 @@ export default function PreviewPanel({ activeFamily }: PreviewPanelProps) {
           >
             <Activity className="h-5 w-5" style={{ color: primaryText }} />
           </div>
-          <span className="text-lg font-bold" style={{ color: textDark }}>
+          <span className="text-lg font-bold" style={{ color: cardText }}>
             Dash<span style={{ color: primary }}>UI</span>
           </span>
         </div>
@@ -54,14 +56,14 @@ export default function PreviewPanel({ activeFamily }: PreviewPanelProps) {
             className="hidden items-center rounded-full border px-3 py-1.5 transition-colors duration-500 md:flex"
             style={{ backgroundColor: bgMain, borderColor: border }}
           >
-            <Search className="mr-2 h-4 w-4 opacity-50" style={{ color: textDark }} />
-            <span className="text-sm opacity-50" style={{ color: textDark }}>
+            <Search className="mr-2 h-4 w-4 opacity-50" style={{ color: mainText }} />
+            <span className="text-sm opacity-50" style={{ color: mainText }}>
               Search...
             </span>
           </div>
-          <Bell className="h-5 w-5 opacity-70" style={{ color: textDark }} />
+          <Bell className="h-5 w-5 opacity-70" style={{ color: cardText }} />
           <div className="h-8 w-8 rounded-full border-2" style={{ borderColor: primary }}>
-            <User className="h-full w-full p-1 opacity-80" style={{ color: textDark }} />
+            <User className="h-full w-full p-1 opacity-80" style={{ color: cardText }} />
           </div>
         </div>
       </header>
@@ -70,11 +72,11 @@ export default function PreviewPanel({ activeFamily }: PreviewPanelProps) {
         <div className="mb-8">
           <h1
             className="mb-2 text-3xl font-bold transition-colors duration-500"
-            style={{ color: textDark }}
+            style={{ color: mainText }}
           >
             Overview
           </h1>
-          <p className="opacity-70" style={{ color: textDark }}>
+          <p className="opacity-70" style={{ color: mainText }}>
             Welcome back. Here is your palette report.
           </p>
         </div>
@@ -97,10 +99,10 @@ export default function PreviewPanel({ activeFamily }: PreviewPanelProps) {
                   +12.5%
                 </span>
               </div>
-              <div className="mb-1 text-2xl font-bold" style={{ color: textDark }}>
+              <div className="mb-1 text-2xl font-bold" style={{ color: cardText }}>
                 $24,500
               </div>
-              <div className="text-sm opacity-60" style={{ color: textDark }}>
+              <div className="text-sm opacity-60" style={{ color: cardText }}>
                 Total Revenue
               </div>
             </article>
@@ -113,7 +115,7 @@ export default function PreviewPanel({ activeFamily }: PreviewPanelProps) {
             style={{ backgroundColor: bgCard, borderColor: border }}
           >
             <div className="mb-6 flex items-center justify-between">
-              <h2 className="font-semibold" style={{ color: textDark }}>
+              <h2 className="font-semibold" style={{ color: cardText }}>
                 Traffic Analysis
               </h2>
               <button
@@ -146,10 +148,10 @@ export default function PreviewPanel({ activeFamily }: PreviewPanelProps) {
             style={{ backgroundColor: bgCard, borderColor: border }}
           >
             <div className="mb-6 flex items-center justify-between">
-              <h2 className="font-semibold" style={{ color: textDark }}>
+              <h2 className="font-semibold" style={{ color: cardText }}>
                 Storage
               </h2>
-              <PieChart className="h-5 w-5 opacity-50" style={{ color: textDark }} />
+              <PieChart className="h-5 w-5 opacity-50" style={{ color: cardText }} />
             </div>
             <div
               className="relative mx-auto mb-6 flex h-48 w-48 items-center justify-center rounded-full border-16"
@@ -164,10 +166,10 @@ export default function PreviewPanel({ activeFamily }: PreviewPanelProps) {
                 }}
               />
               <div className="text-center">
-                <span className="block text-2xl font-bold" style={{ color: textDark }}>
+                <span className="block text-2xl font-bold" style={{ color: cardText }}>
                   75%
                 </span>
-                <span className="text-xs opacity-60" style={{ color: textDark }}>
+                <span className="text-xs opacity-60" style={{ color: cardText }}>
                   Used
                 </span>
               </div>

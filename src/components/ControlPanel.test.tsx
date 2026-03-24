@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import ControlPanel from '@/components/ControlPanel';
 import type { GeneratorSettings } from '@/types/palette';
 import { createDefaultSettings } from '@/types/palette';
@@ -109,5 +109,44 @@ describe('ControlPanel', () => {
 
     fireEvent.click(screen.getByRole('button', { name: /reset all global & local/i }));
     expect(onReset).toHaveBeenCalled();
+  });
+
+  it('forwards imported preset files through the callback', async () => {
+    const onImportPreset = vi.fn().mockResolvedValue(undefined);
+
+    render(
+      <ControlPanel
+        settings={createDefaultSettings()}
+        setSettings={vi.fn()}
+        onReset={vi.fn()}
+        activeFamilyId="flamingo"
+        activeFamilyDisplayName="Flamingo"
+        onImportPreset={onImportPreset}
+      />,
+    );
+
+    const input = screen.getByTestId('preset-import-input');
+    const file = new File(
+      [
+        JSON.stringify({
+          id: 'aurora',
+          name: 'Aurora',
+          description: 'Imported preset',
+          families: [{ id: 'glacier', name: 'Glacier', baseHue: 210 }],
+        }),
+      ],
+      'aurora.json',
+      { type: 'application/json' },
+    );
+
+    fireEvent.change(input, {
+      target: {
+        files: [file],
+      },
+    });
+
+    await waitFor(() => {
+      expect(onImportPreset).toHaveBeenCalledWith(file);
+    });
   });
 });

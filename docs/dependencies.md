@@ -1,63 +1,38 @@
 # Dependencias
 
-## Dependencias de runtime
-
-| Paquete        | Uso                                   | Sigue siendo necesario |
-| -------------- | ------------------------------------- | ---------------------- |
-| `react`        | Renderizado de la aplicación          | Sí                     |
-| `react-dom`    | Montaje en el DOM                     | Sí                     |
-| `lucide-react` | Iconografía de UI                     | Sí                     |
-| `gsap`         | Animaciones declarativas y eficientes | Sí                     |
-| `@gsap/react`  | Integración segura de GSAP en React   | Sí                     |
-
-## Dependencias de desarrollo
-
-| Paquete                                   | Uso                                      | Sigue siendo necesario |
-| ----------------------------------------- | ---------------------------------------- | ---------------------- |
-| `vite-plus`                               | CLI unificada para dev/check/test/build  | Sí                     |
-| `vite` (`@voidzero-dev/vite-plus-core`)   | Core alineado con Vite+                  | Sí                     |
-| `vitest` (`@voidzero-dev/vite-plus-test`) | Runtime de testing alineado con Vite+    | Sí                     |
-| `@vitejs/plugin-react`                    | Integración React para Vite/Vite+        | Sí                     |
-| `typescript`                              | Tipado estático                          | Sí                     |
-| `tailwindcss`                             | Estilos utilitarios y tokens             | Sí                     |
-| `@tailwindcss/vite`                       | Integración moderna de Tailwind con Vite | Sí                     |
-| `jsdom`                                   | Entorno DOM para Vitest                  | Sí                     |
-| `@testing-library/react`                  | Render y pruebas de componentes          | Sí                     |
-| `@testing-library/jest-dom`               | Matchers para DOM                        | Sí                     |
-| `@testing-library/user-event`             | Interacciones de usuario en tests        | Sí                     |
-| `@types/node`                             | Tipos Node.js                            | Sí                     |
-| `@types/react`                            | Tipos React                              | Sí                     |
-| `@types/react-dom`                        | Tipos React DOM                          | Sí                     |
-
-## Dependencias retiradas o implícitamente eliminadas
-
-- Tailwind por CDN en `index.html`
-- Variables y configuración relacionadas con `GEMINI_API_KEY`
-- README y metadata arrastrados desde un scaffold ajeno al producto
-
-## Notas sobre Vite+ y overrides
-
-Se mantiene el override de `vite` y `vitest` hacia los paquetes oficiales de Vite+ para asegurar que la CLI y las APIs usen la misma base interna.# Dependencias
-
 ## Runtime
 
-- `react`, `react-dom`: UI reactiva y render.
-- `lucide-react`: iconografía.
-- `gsap`: motor de animación.
+- `react`: renderizado declarativo de la SPA. Necesario.
+- `react-dom`: montaje en DOM y runtime cliente. Necesario.
+- `lucide-react`: iconografía ligera para controles y acciones. Necesario.
+- `gsap`: animaciones de entrada y transiciones suaves. Necesario.
+- `@gsap/react`: integración segura de GSAP con React. Necesario.
 
 ## Desarrollo
 
-- `vite`: build/dev (Vite 8 con integración Rolldown).
-- `@vitejs/plugin-react`: transformación React.
-- `typescript`: tipado estático.
-- `vitest`, `@vitest/coverage-v8`, `jsdom`: pruebas y cobertura.
-- `@testing-library/*`: pruebas de componentes y accesibilidad básica.
-- `oxlint`, `oxfmt`: lint y format de alto rendimiento (OXC).
-- `tailwindcss`, `@tailwindcss/postcss`, `postcss`: sistema de estilos.
-- `vite-plus`: integración local con ecosistema `vp`.
+- `vite-plus`: CLI unificada (`vp dev`, `vp check`, `vp test`, `vp build`). Necesario.
+- `vite` (`@voidzero-dev/vite-plus-core`): core compatible con Vite+ y build sobre Rolldown. Necesario.
+- `vitest` (`@voidzero-dev/vite-plus-test`): runtime de testing alineado con Vite+. Necesario.
+- `@vitest/coverage-istanbul`: cobertura para Vitest en `logs/coverage`. Necesario.
+- `@vitejs/plugin-react`: transformación React + Fast Refresh. Necesario.
+- `typescript`: tipado estático y chequeo de contratos. Necesario.
+- `tailwindcss`: utilidades y tokens de diseño. Necesario.
+- `@tailwindcss/vite`: integración moderna de Tailwind en Vite/Vite+. Necesario.
+- `jsdom`: entorno DOM para tests de componentes. Necesario.
+- `@testing-library/react`: render y assertions centradas en comportamiento. Necesario.
+- `@testing-library/jest-dom`: matchers adicionales para DOM. Necesario.
+- `@testing-library/user-event`: interacciones realistas de usuario. Necesario.
+- `@types/node`: tipos de Node.js para scripts y config. Necesario.
+- `@types/react`: tipos de React. Necesario.
+- `@types/react-dom`: tipos de React DOM. Necesario.
 
-## Criterios de limpieza
+## Dependencias retiradas
 
-- Se retiró dependencia implícita de CDN Tailwind e importmaps remotos.
-- Se eliminó acoplamiento a `GEMINI_API_KEY` del `vite.config.ts`.
-- Se mantienen solo dependencias necesarias para build, calidad y pruebas.
+- Tailwind por CDN en `index.html`
+- Configuración y variables ligadas a `GEMINI_API_KEY`
+- Restos de scaffold ajeno al producto original
+
+## Notas operativas
+
+- Se mantienen `overrides` de `vite` y `vitest` para que el ecosistema entero use la base de Vite+.
+- Actualmente `vp test` muestra un warning no bloqueante de “mixed versions” entre el alias de `vite-plus-test` y el proveedor oficial de cobertura; los tests y la cobertura pasan correctamente, así que se documenta como matiz de tooling y no como fallo funcional.

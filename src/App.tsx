@@ -7,19 +7,91 @@ import ExportMenu from '@/components/ExportMenu';
 import PaletteGrid from '@/components/PaletteGrid';
 import PreviewPanel from '@/components/PreviewPanel';
 import Toast from '@/components/Toast';
+import { PRESETS } from '@/data/presets';
 import { generatePalettes, getSafeActiveFamily } from '@/lib/color';
+import { parseCustomPresetText } from '@/lib/custom-presets';
+import {
+  ensureAvailablePreset,
+  readStoredCustomPresets,
+  readStoredSettings,
+  writeStoredCustomPresets,
+  writeStoredSettings,
+} from '@/lib/storage';
 import { createDefaultSettings } from '@/types/palette';
+import type { GeneratorSettings, PresetRegistry } from '@/types/palette';
 
 gsap.registerPlugin(useGSAP);
 
+const mergePresetRegistries = (customPresets: PresetRegistry): PresetRegistry => ({
+  ...PRESETS,
+  ...customPresets,
+});
+
 export default function App() {
-  const [settings, setSettings] = useState(createDefaultSettings);
+  const [customPresets, setCustomPresets] = useState<PresetRegistry>(readStoredCustomPresets);
+  const presetRegistry = useMemo(() => mergePresetRegistries(customPresets), [customPresets]);
+  const [settings, setSettings] = useState<GeneratorSettings>(readStoredSettings);
   const [activeTab, setActiveTab] = useState<'palette' | 'preview'>('palette');
   const [selectedFamilyId, setSelectedFamilyId] = useState<string | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const rootRef = useRef<HTMLDivElement>(null);
-  const palettes = useMemo(() => generatePalettes(settings), [settings]);
+  const palettes = useMemo(
+    () => generatePalettes(settings, presetRegistry),
+    [presetRegistry, settings],
+  );
+
+  useEffect(() => {
+    setSettings((previous) => ensureAvailablePreset(previous, presetRegistry));
+  }, [presetRegistry]);
+
+  useEffect(() => {
+    const nextSettings = ensureAvailablePreset(settings, presetRegistry);
+
+    if (nextSettings !== settings) {
+      setSettings(nextSettings);
+      return;
+    }
+
+    writeStoredSettings(settings);
+  }, [presetRegistry, settings]);
+
+  useEffect(() => {
+    writeStoredCustomPresets(customPresets);
+  }, [customPresets]);
+
+  const handleImportPreset = async (file: File) => {
+    try {
+      const importedPresets = parseCustomPresetText(await file.text());
+      const importedIds = Object.keys(importedPresets);
+      const nextPresetId = importedIds[0];
+
+      setCustomPresets((previous) => ({
+        ...previous,
+        ...importedPresets,
+      }));
+
+      if (nextPresetId) {
+        setSettings((previous) => ({
+          ...previous,
+          preset: nextPresetId,
+          overrides: {},
+        }));
+        setSelectedFamilyId(null);
+        setActiveTab('palette');
+      }
+
+      setToastMessage(
+        importedIds.length === 1
+          ? `Imported custom preset "${importedIds[0]}".`
+          : `Imported ${importedIds.length} custom presets.`,
+      );
+    } catch (error) {
+      setToastMessage(
+        error instanceof Error ? error.message : 'Unable to import custom preset JSON.',
+      );
+    }
+  };
 
   useEffect(() => {
     if (palettes.length === 0) {
@@ -83,6 +155,9 @@ export default function App() {
         onReset={() => setSettings(createDefaultSettings())}
         activeFamilyId={activeFamily.id}
         activeFamilyDisplayName={activeFamily.name}
+        presetOptions={presetRegistry}
+        customPresetCount={Object.keys(customPresets).length}
+        onImportPreset={handleImportPreset}
       />
 
       <main className="flex h-screen flex-1 flex-col overflow-hidden">
@@ -129,7 +204,7 @@ export default function App() {
             />
           ) : (
             <div className="flex h-full flex-col items-center p-4 md:p-8" data-animate="enter">
-              <div className="h-full max-h-[800px] w-full max-w-5xl overflow-hidden rounded-2xl border border-(--color-border-default) shadow-2xl">
+              <div className="h-full max-h-200 w-full max-w-5xl overflow-hidden rounded-2xl border border-(--color-border-default) shadow-2xl">
                 <PreviewPanel activeFamily={activeFamily} />
               </div>
               <p className="mt-4 text-sm text-(--color-text-muted)">

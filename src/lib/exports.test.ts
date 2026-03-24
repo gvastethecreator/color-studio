@@ -3,8 +3,9 @@ import { generateCSSVariables, generateTailwind4CSS, generateTokenJson } from '@
 import { createDefaultSettings } from '@/types/palette';
 
 describe('export helpers', () => {
+  const palette = generatePalettes(createDefaultSettings()).slice(0, 1);
+
   it('generates CSS variables from stable family ids', () => {
-    const palette = generatePalettes(createDefaultSettings()).slice(0, 1);
     const output = generateCSSVariables(palette);
 
     expect(output).toContain(':root {');
@@ -12,7 +13,6 @@ describe('export helpers', () => {
   });
 
   it('generates Tailwind theme variables', () => {
-    const palette = generatePalettes(createDefaultSettings()).slice(0, 1);
     const output = generateTailwind4CSS(palette);
 
     expect(output).toContain('@theme {');
@@ -20,10 +20,17 @@ describe('export helpers', () => {
   });
 
   it('generates JSON tokens for downstream tooling', () => {
-    const palette = generatePalettes(createDefaultSettings()).slice(0, 1);
     const output = generateTokenJson(palette);
 
     expect(output).toContain('"flamingo"');
     expect(output).toContain('"1"');
+  });
+
+  it('keeps export outputs stable through snapshot regression coverage', () => {
+    expect({
+      css: generateCSSVariables(palette),
+      tailwind: generateTailwind4CSS(palette),
+      json: generateTokenJson(palette),
+    }).toMatchSnapshot();
   });
 });

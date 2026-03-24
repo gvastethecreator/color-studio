@@ -41,6 +41,8 @@ export interface PresetDefinition {
   families: PresetFamilyDefinition[];
 }
 
+export type PresetRegistry = Record<string, PresetDefinition>;
+
 export const DEFAULT_OVERRIDE: FamilyOverride = {
   hueShift: 0,
   chromaScale: 1,

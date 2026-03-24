@@ -1,4 +1,5 @@
 import { copyTextToClipboard } from '@/lib/clipboard';
+import { describe, expect, it, vi } from 'vitest';
 
 describe('copyTextToClipboard', () => {
   const originalClipboard = navigator.clipboard;
@@ -59,36 +60,5 @@ describe('copyTextToClipboard', () => {
     });
 
     await expect(copyTextToClipboard('nope')).resolves.toBe(false);
-  });
-});import { describe, expect, it, vi } from "vitest";
-import { copyToClipboard } from "./clipboard";
-
-describe("clipboard lib", () => {
-  it("usa navigator.clipboard cuando está disponible", async () => {
-    const writeText = vi.fn().mockResolvedValue(undefined);
-
-    Object.defineProperty(navigator, "clipboard", {
-      configurable: true,
-      value: { writeText },
-    });
-
-    await expect(copyToClipboard("hola")).resolves.toBe(true);
-    expect(writeText).toHaveBeenCalledWith("hola");
-  });
-
-  it("hace fallback a execCommand", async () => {
-    Object.defineProperty(navigator, "clipboard", {
-      configurable: true,
-      value: undefined,
-    });
-
-    const execCommand = vi.fn().mockReturnValue(true);
-    Object.defineProperty(document, "execCommand", {
-      configurable: true,
-      value: execCommand,
-    });
-
-    await expect(copyToClipboard("fallback")).resolves.toBe(true);
-    expect(execCommand).toHaveBeenCalledWith("copy");
   });
 });

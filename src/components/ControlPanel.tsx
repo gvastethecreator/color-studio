@@ -1,8 +1,18 @@
-import type { Dispatch, SetStateAction } from 'react';
-import { Grid, Palette, RefreshCcw, RotateCcw, Settings2, Sliders, Sun } from 'lucide-react';
+import { useRef } from 'react';
+import type { ChangeEvent, Dispatch, SetStateAction } from 'react';
+import {
+  Grid,
+  Palette,
+  RefreshCcw,
+  RotateCcw,
+  Settings2,
+  Sliders,
+  Sun,
+  Upload,
+} from 'lucide-react';
 import { PRESETS } from '@/data/presets';
 import { DEFAULT_OVERRIDE } from '@/types/palette';
-import type { FamilyOverride, GeneratorSettings } from '@/types/palette';
+import type { FamilyOverride, GeneratorSettings, PresetRegistry } from '@/types/palette';
 
 interface ControlPanelProps {
   settings: GeneratorSettings;
@@ -10,6 +20,9 @@ interface ControlPanelProps {
   onReset: () => void;
   activeFamilyId: string;
   activeFamilyDisplayName: string;
+  presetOptions?: PresetRegistry;
+  customPresetCount?: number;
+  onImportPreset?: (file: File) => Promise<void> | void;
 }
 
 type OverrideKey = keyof Pick<FamilyOverride, 'hueShift' | 'chromaScale' | 'lightnessScale'>;
@@ -20,8 +33,23 @@ export default function ControlPanel({
   onReset,
   activeFamilyId,
   activeFamilyDisplayName,
+  presetOptions = PRESETS,
+  customPresetCount = 0,
+  onImportPreset,
 }: ControlPanelProps) {
   const currentOverride = settings.overrides[activeFamilyId] ?? DEFAULT_OVERRIDE;
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const availablePresets = presetOptions;
+
+  const handleImportChange = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+
+    if (file && onImportPreset) {
+      await onImportPreset(file);
+    }
+
+    event.target.value = '';
+  };
 
   const handleGlobalChange = (
     key: keyof Omit<GeneratorSettings, 'overrides'>,
@@ -80,7 +108,7 @@ export default function ControlPanel({
               onChange={(event) => handleGlobalChange('preset', event.target.value)}
               className="w-full cursor-pointer appearance-none rounded-lg border border-(--color-border-default) bg-(--color-surface-2) p-2.5 text-sm text-white outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500"
             >
-              {Object.entries(PRESETS).map(([key, preset]) => (
+              {Object.entries(availablePresets).map(([key, preset]) => (
                 <option key={key} value={key}>
                   {preset.name}
                 </option>
@@ -98,8 +126,35 @@ export default function ControlPanel({
             </div>
           </div>
           <p className="text-[10px] text-(--color-text-muted)">
-            {PRESETS[settings.preset]?.description}
+            {availablePresets[settings.preset]?.description}
           </p>
+          <input
+            ref={fileInputRef}
+            data-testid="preset-import-input"
+            type="file"
+            accept=".json,application/json"
+            className="hidden"
+            onChange={(event) => {
+              void handleImportChange(event);
+            }}
+          />
+          <div className="flex items-center justify-between gap-3 pt-1">
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={!onImportPreset}
+              className="inline-flex items-center gap-2 rounded-md border border-(--color-border-default) bg-(--color-surface-2) px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-(--color-surface-1) disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              <Upload className="h-3.5 w-3.5" />
+              Import preset JSON
+            </button>
+
+            {customPresetCount > 0 && (
+              <span className="text-[10px] text-(--color-text-muted)">
+                {customPresetCount} custom preset{customPresetCount === 1 ? '' : 's'} loaded
+              </span>
+            )}
+          </div>
         </section>
 
         <section className="space-y-6 border-t border-[#222] pt-4" data-animate="enter">
@@ -175,7 +230,7 @@ export default function ControlPanel({
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Sliders className="h-4 w-4 text-indigo-400" />
-              <span className="max-w-[150px] truncate text-sm font-bold text-white">
+              <span className="max-w-37.5 truncate text-sm font-bold text-white">
                 {activeFamilyDisplayName}
               </span>
             </div>

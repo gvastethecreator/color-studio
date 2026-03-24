@@ -1,0 +1,41 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`export helpers > keeps export outputs stable through snapshot regression coverage 1`] = `
+{
+  "css": ":root {
+  --flamingo-1: oklch(0.970 0.020 0.0);
+  --flamingo-2: oklch(0.920 0.050 0.0);
+  --flamingo-3: oklch(0.870 0.100 0.0);
+  --flamingo-4: oklch(0.810 0.150 0.0);
+  --flamingo-5: oklch(0.730 0.230 0.0);
+  --flamingo-6: oklch(0.630 0.290 0.0);
+  --flamingo-7: oklch(0.540 0.240 0.0);
+  --flamingo-8: oklch(0.420 0.190 0.0);
+  --flamingo-9: oklch(0.300 0.130 0.0);
+}",
+  "json": "{
+  "flamingo": {
+    "1": "oklch(0.970 0.020 0.0)",
+    "2": "oklch(0.920 0.050 0.0)",
+    "3": "oklch(0.870 0.100 0.0)",
+    "4": "oklch(0.810 0.150 0.0)",
+    "5": "oklch(0.730 0.230 0.0)",
+    "6": "oklch(0.630 0.290 0.0)",
+    "7": "oklch(0.540 0.240 0.0)",
+    "8": "oklch(0.420 0.190 0.0)",
+    "9": "oklch(0.300 0.130 0.0)"
+  }
+}",
+  "tailwind": "@theme {
+  --color-flamingo-1: oklch(0.970 0.020 0.0);
+  --color-flamingo-2: oklch(0.920 0.050 0.0);
+  --color-flamingo-3: oklch(0.870 0.100 0.0);
+  --color-flamingo-4: oklch(0.810 0.150 0.0);
+  --color-flamingo-5: oklch(0.730 0.230 0.0);
+  --color-flamingo-6: oklch(0.630 0.290 0.0);
+  --color-flamingo-7: oklch(0.540 0.240 0.0);
+  --color-flamingo-8: oklch(0.420 0.190 0.0);
+  --color-flamingo-9: oklch(0.300 0.130 0.0);
+}",
+}
+`;
