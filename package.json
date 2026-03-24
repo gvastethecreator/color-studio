@@ -1,0 +1,48 @@
+{
+  "name": "oklch-prism-architect",
+  "version": "0.2.0",
+  "private": true,
+  "description": "Generador de paletas OKLCH con exportación de tokens y vista previa UI, modernizado con Bun + Vite+.",
+  "type": "module",
+  "scripts": {
+    "dev": "vp dev",
+    "check": "bun run scripts/run-with-log.mjs check vp check",
+    "check:fix": "bun run scripts/run-with-log.mjs check-fix vp check --fix",
+    "lint": "bun run scripts/run-with-log.mjs lint vp lint",
+    "fmt": "bun run scripts/run-with-log.mjs fmt vp fmt",
+    "test": "bun run scripts/run-with-log.mjs test vp test --run --coverage --reporter=verbose",
+    "build": "bun run scripts/run-with-log.mjs build vp build",
+    "preview": "vp preview",
+    "clean": "bun run scripts/clean-generated.mjs",
+    "prepare": "vp config"
+  },
+  "dependencies": {
+    "@gsap/react": "^2.1.2",
+    "gsap": "^3.13.0",
+    "lucide-react": "^0.563.0",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.1.12",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/node": "^24.6.0",
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.2",
+    "@vitejs/plugin-react": "^5.0.0",
+    "@vitest/coverage-istanbul": "^4.0.0-beta.18",
+    "jsdom": "^26.1.0",
+    "tailwindcss": "^4.1.12",
+    "typescript": "^5.9.3",
+    "vite": "npm:@voidzero-dev/vite-plus-core@latest",
+    "vite-plus": "^0.1.14",
+    "vitest": "npm:@voidzero-dev/vite-plus-test@latest"
+  },
+  "overrides": {
+    "vite": "npm:@voidzero-dev/vite-plus-core@latest",
+    "vitest": "npm:@voidzero-dev/vite-plus-test@latest"
+  },
+  "packageManager": "bun@1.3.11"
+}
