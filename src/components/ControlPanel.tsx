@@ -93,7 +93,7 @@ export default function ControlPanel({
           <Palette className="h-6 w-6 text-white" />
         </div>
         <h1 className="bg-linear-to-r from-white to-gray-400 bg-clip-text text-xl font-bold text-transparent">
-          Prism Architect
+          Color Studio
         </h1>
       </div>
 

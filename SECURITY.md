@@ -2,11 +2,11 @@
 
 ## Reporting a vulnerability
 
-If you discover a security issue in OKLCH Prism Architect, please report it
+If you discover a security issue in Color Studio, please report it
 privately rather than opening a public issue.
 
 - Open a private report via GitHub Security Advisories:
-  <https://github.com/gvastethecreator/oklch-prism-architect/security/advisories/new>
+  <https://github.com/gvastethecreator/color-studio/security/advisories/new>
 - Or email the maintainer through the address listed on their GitHub profile.
 
 Please include:

@@ -4,8 +4,8 @@ import { createDefaultSettings } from '@/types/palette';
 import type { GeneratorSettings, PresetRegistry } from '@/types/palette';
 
 export const STORAGE_KEYS = {
-  settings: 'oklch-prism-architect.settings',
-  customPresets: 'oklch-prism-architect.custom-presets',
+  settings: 'color-studio.settings',
+  customPresets: 'color-studio.custom-presets',
 } as const;
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>

@@ -1,4 +1,4 @@
-# OKLCH Prism Architect
+# Color Studio
 
 Generate OKLCH color scales from curated presets, tune hue, chroma, and
 lightness globally or per family, preview them in a live dashboard, and
@@ -66,7 +66,7 @@ src/
   types/palette.ts     Shared types and defaults
 docs/                  Architecture, dependencies, worklog, technical debt
 scripts/               Log runner, cleanup
-.github/workflows/     CI: check, test, build
+.github/workflows/     CI (ci.yml) and Pages deploy (pages.yml)
 ```
 
 See [docs/README.md](docs/README.md) for the full documentation index.
@@ -89,6 +89,31 @@ Command Palette with `Tasks: Run Task`.
 GitHub Actions runs `check`, `test`, and `build` on every push and pull
 request. The full logs and coverage are uploaded as an artifact for
 failed runs. See `.github/workflows/ci.yml`.
+
+## Demo (GitHub Pages)
+
+Every push to `main` rebuilds the app and publishes it to GitHub Pages
+via `.github/workflows/pages.yml`. After enabling Pages in the repo
+settings (Source: GitHub Actions), the demo is served at:
+
+```
+https://<owner>.github.io/color-studio/
+```
+
+The build uses an env-aware `base` path so the dev server and the Pages
+build resolve assets correctly without manual changes.
+
+### Preview the Pages build locally
+
+```bash
+bun run build                       # regular build (base: /)
+GITHUB_PAGES=true bun run build     # Pages build (base: /color-studio/)
+bun run preview                     # serves dist/ at http://localhost:4173
+```
+
+The regular `bun run build` is what `bun run preview` serves. The
+`GITHUB_PAGES=true` build is only needed when you want to verify the
+project-pages path before pushing.
 
 ## Documentation
 

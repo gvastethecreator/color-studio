@@ -1,7 +1,7 @@
 {
-  "name": "oklch-prism-architect",
+  "name": "color-studio",
   "version": "0.2.0",
-  "description": "OKLCH palette generator with token export and live UI preview, modernized with Bun and Vite+.",
+  "description": "Color Studio: OKLCH palette generator with token export and live UI preview, built with Bun and Vite+.",
   "type": "module",
   "scripts": {
     "dev": "vp dev",

@@ -3,7 +3,7 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "oklch-prism-architect",
+      "name": "color-studio",
       "dependencies": {
         "@gsap/react": "^2.1.2",
         "gsap": "^3.13.0",

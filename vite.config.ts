@@ -8,7 +8,12 @@ import { defineConfig } from 'vite-plus';
 
 const rootDir = path.dirname(fileURLToPath(import.meta.url));
 
+const repoSlug = 'color-studio';
+const pagesBase = `/${repoSlug}/`;
+const isPagesBuild = process.env.GITHUB_PAGES === 'true';
+
 export default defineConfig({
+  base: isPagesBuild ? pagesBase : '/',
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
