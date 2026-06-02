@@ -1,38 +1,46 @@
-# Dependencias
+# Dependencies
 
 ## Runtime
 
-- `react`: renderizado declarativo de la SPA. Necesario.
-- `react-dom`: montaje en DOM y runtime cliente. Necesario.
-- `lucide-react`: iconografía ligera para controles y acciones. Necesario.
-- `gsap`: animaciones de entrada y transiciones suaves. Necesario.
-- `@gsap/react`: integración segura de GSAP con React. Necesario.
+- `react`: declarative rendering for the SPA. Required.
+- `react-dom`: DOM mounting and client runtime. Required.
+- `lucide-react`: lightweight icon set for controls and actions. Required.
+- `gsap`: entrance animations and smooth transitions. Required.
+- `@gsap/react`: safe GSAP integration with React. Required.
 
-## Desarrollo
+## Development
 
-- `vite-plus`: CLI unificada (`vp dev`, `vp check`, `vp test`, `vp build`). Necesario.
-- `vite` (`@voidzero-dev/vite-plus-core`): core compatible con Vite+ y build sobre Rolldown. Necesario.
-- `vitest` (`@voidzero-dev/vite-plus-test`): runtime de testing alineado con Vite+. Necesario.
-- `@vitest/coverage-istanbul`: cobertura para Vitest en `logs/coverage`. Necesario.
-- `@vitejs/plugin-react`: transformación React + Fast Refresh. Necesario.
-- `typescript`: tipado estático y chequeo de contratos. Necesario.
-- `tailwindcss`: utilidades y tokens de diseño. Necesario.
-- `@tailwindcss/vite`: integración moderna de Tailwind en Vite/Vite+. Necesario.
-- `jsdom`: entorno DOM para tests de componentes. Necesario.
-- `@testing-library/react`: render y assertions centradas en comportamiento. Necesario.
-- `@testing-library/jest-dom`: matchers adicionales para DOM. Necesario.
-- `@testing-library/user-event`: interacciones realistas de usuario. Necesario.
-- `@types/node`: tipos de Node.js para scripts y config. Necesario.
-- `@types/react`: tipos de React. Necesario.
-- `@types/react-dom`: tipos de React DOM. Necesario.
+- `vite-plus`: unified CLI (`vp dev`, `vp check`, `vp test`, `vp build`).
+  Required.
+- `vite` (aliased to `@voidzero-dev/vite-plus-core`): Vite+ compatible core
+  with a Rolldown-based build. Required.
+- `vitest` (aliased to `@voidzero-dev/vite-plus-test`): test runtime aligned
+  with Vite+. Required.
+- `@vitest/coverage-istanbul`: Vitest coverage in `logs/coverage`. Required.
+- `@vitejs/plugin-react`: React transform with Fast Refresh. Required.
+- `typescript`: static typing and contract checks. Required.
+- `tailwindcss`: utility-first styling and design tokens. Required.
+- `@tailwindcss/vite`: modern Tailwind integration for Vite/Vite+. Required.
+- `jsdom`: DOM environment for component tests. Required.
+- `@testing-library/react`: behavior-focused render and assertions.
+  Required.
+- `@testing-library/jest-dom`: additional DOM matchers. Required.
+- `@testing-library/user-event`: realistic user interactions. Required.
+- `@types/node`: Node.js types for scripts and config. Required.
+- `@types/react`: React types. Required.
+- `@types/react-dom`: React DOM types. Required.
 
-## Dependencias retiradas
+## Removed dependencies
 
-- Tailwind por CDN en `index.html`
-- Configuración y variables ligadas a `GEMINI_API_KEY`
-- Restos de scaffold ajeno al producto original
+- Tailwind via CDN in `index.html`.
+- Configuration and env variables tied to `GEMINI_API_KEY`.
+- Scaffolding leftover from a prior AI Studio template.
 
-## Notas operativas
+## Operational notes
 
-- Se mantienen `overrides` de `vite` y `vitest` para que el ecosistema entero use la base de Vite+.
-- Actualmente `vp test` muestra un warning no bloqueante de “mixed versions” entre el alias de `vite-plus-test` y el proveedor oficial de cobertura; los tests y la cobertura pasan correctamente, así que se documenta como matiz de tooling y no como fallo funcional.
+- The `vite` and `vitest` overrides pin the entire toolchain to Vite+ to
+  avoid drift between related packages.
+- `vp test --coverage` prints a non-blocking "mixed versions" warning
+  because the Vite+ test alias and the Istanbul coverage provider
+  publish separate versions. Tests and coverage still pass; the warning
+  is treated as a tooling nuance, not a functional failure.

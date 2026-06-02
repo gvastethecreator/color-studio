@@ -5,7 +5,7 @@ import { spawn } from 'node:child_process';
 const [, , taskName, command, ...args] = process.argv;
 
 if (!taskName || !command) {
-  console.error('Uso: bun run scripts/run-with-log.mjs <task> <command> [...args]');
+  console.error('Usage: bun run scripts/run-with-log.mjs <task> <command> [...args]');
   process.exit(1);
 }
 
@@ -62,7 +62,7 @@ await writeFile(logFile, buffer, 'utf8');
 await writeFile(latestLogFile, buffer, 'utf8');
 
 if (exitCode !== 0) {
-  console.error(`\nEl comando falló. Log guardado en logs/${timestamp}-${taskName}.log`);
+  console.error(`\nCommand failed. Log saved to logs/${timestamp}-${taskName}.log`);
 }
 
 process.exit(Number(exitCode));

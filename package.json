@@ -1,8 +1,7 @@
 {
   "name": "oklch-prism-architect",
   "version": "0.2.0",
-  "private": true,
-  "description": "Generador de paletas OKLCH con exportación de tokens y vista previa UI, modernizado con Bun + Vite+.",
+  "description": "OKLCH palette generator with token export and live UI preview, modernized with Bun and Vite+.",
   "type": "module",
   "scripts": {
     "dev": "vp dev",

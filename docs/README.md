@@ -1,29 +1,21 @@
-# Documentación del proyecto
+# Documentation
 
-Este directorio centraliza la documentación operativa y técnica del repositorio.
+This directory holds the project's technical and governance documentation.
 
-## Archivos disponibles
+## Index
 
-- `ARCHITECTURE.md`: estructura del código, módulos y flujo de datos
-- `DEPENDENCIES.md`: inventario de dependencias y motivo de uso
-- `WORKLOG.md`: registro de tareas realizadas durante la revisión integral
-- `TECHNICAL_DEBT.md`: deuda técnica remanente y próximos pasos recomendados
+- [architecture.md](architecture.md): module layout, data flow, and toolchain.
+- [dependencies.md](dependencies.md): runtime and dev dependency inventory
+  with rationale.
+- [WORKLOG.md](WORKLOG.md): change log for the recent modernization pass.
+- [TECHNICAL_DEBT.md](TECHNICAL_DEBT.md): known gaps and recommended next
+  steps.
 
-## Convención
+## Convention
 
-La documentación busca responder cuatro preguntas:
+Each doc answers one of four questions:
 
-1. Qué hace el proyecto
-2. Cómo está organizado
-3. Qué dependencias son realmente necesarias
-4. Qué queda pendiente o conviene mejorar después# Documentación del proyecto
-
-Este directorio concentra la documentación técnica y de gobierno del repo.
-
-## Índice
-
-- `architecture.md`: estructura y decisiones arquitectónicas.
-- `dependencies.md`: inventario y justificación de dependencias.
-- `project-review.md`: revisión exhaustiva del estado del proyecto.
-- `tasks-completed.md`: trazabilidad de acciones implementadas.
-- `technical-debt.md`: deuda técnica identificada y próximos pasos.
+1. What does the project do?
+2. How is it organized?
+3. Which dependencies are actually required?
+4. What is still pending or worth improving next?
