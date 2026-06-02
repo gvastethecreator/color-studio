@@ -1,6 +1,6 @@
 # Color Studio
 
-Generate OKLCH color scales from curated presets, tune hue, chroma, and
+Generate color scales from curated presets, tune hue, chroma, and
 lightness globally or per family, preview them in a live dashboard, and
 export design tokens as CSS custom properties, Tailwind 4 `@theme`, or JSON.
 
@@ -128,7 +128,7 @@ project-pages path before pushing.
 
 [MIT](LICENSE). See the file for the full text.
 
-## Maintainer notes
+## Notes
 
 - Exported token names use stable family IDs, so renaming a family
   display name will not break existing integrations.
