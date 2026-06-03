@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, useTransition } from 'react';
 
 interface DebouncedCommitApi<T> {
   /** Local value that updates immediately during interaction. */
@@ -34,23 +34,23 @@ export function useDebouncedCommit<T>(
   const timerRef = useRef<number | null>(null);
   const commitRef = useRef(commit);
   const valueRef = useRef(value);
+  const externalValueRef = useRef(value);
 
   commitRef.current = commit;
   valueRef.current = value;
+
+  if (value !== externalValueRef.current && timerRef.current === null) {
+    externalValueRef.current = value;
+    setLocalValue(value);
+  }
 
   const clearTimer = useCallback(() => {
     if (timerRef.current !== null) {
       window.clearTimeout(timerRef.current);
       timerRef.current = null;
+      setIsPending(false);
     }
   }, []);
-
-  useEffect(() => {
-    setLocalValue(value);
-    clearTimer();
-    setIsPending(false);
-    return clearTimer;
-  }, [value, clearTimer]);
 
   useEffect(() => clearTimer, [clearTimer]);
 
@@ -58,6 +58,7 @@ export function useDebouncedCommit<T>(
     (next: T) => {
       setLocalValue(next);
       clearTimer();
+      externalValueRef.current = next;
       setIsPending(true);
       timerRef.current = window.setTimeout(() => {
         commitRef.current(next);
@@ -75,7 +76,7 @@ export function useDebouncedCommit<T>(
 
     clearTimer();
     commitRef.current(localValue);
-    setIsPending(false);
+    externalValueRef.current = localValue;
   }, [clearTimer, localValue]);
 
   return { localValue, update, commitNow, isPending };

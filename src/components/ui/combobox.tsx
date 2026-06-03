@@ -1,29 +1,21 @@
 'use client';
 
 import { Combobox as ComboboxPrimitive } from '@base-ui/react/combobox';
-import { ChevronsUpDownIcon, XIcon } from 'lucide-react';
+import { IconSelector, IconX } from '@tabler/icons-react';
+import { use, useMemo } from 'react';
 import * as React from 'react';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-
-export const ComboboxContext: React.Context<{
-  chipsRef: React.RefObject<Element | null> | null;
-  multiple: boolean;
-}> = React.createContext<{
-  chipsRef: React.RefObject<Element | null> | null;
-  multiple: boolean;
-}>({
-  chipsRef: null,
-  multiple: false,
-});
+import { ComboboxContext } from '@/components/ui/combobox-context';
 
 export function Combobox<Value, Multiple extends boolean | undefined = false>(
   props: ComboboxPrimitive.Root.Props<Value, Multiple>,
 ): React.ReactElement {
   const chipsRef = React.useRef<Element | null>(null);
+  const contextValue = useMemo(() => ({ chipsRef, multiple: !!props.multiple }), [props.multiple]);
   return (
-    <ComboboxContext.Provider value={{ chipsRef, multiple: !!props.multiple }}>
+    <ComboboxContext.Provider value={contextValue}>
       <ComboboxPrimitive.Root {...props} />
     </ComboboxContext.Provider>
   );
@@ -110,7 +102,7 @@ export function ComboboxInput({
           {...triggerProps}
         >
           <ComboboxPrimitive.Icon data-slot="combobox-icon">
-            <ChevronsUpDownIcon />
+            <IconSelector />
           </ComboboxPrimitive.Icon>
         </ComboboxTrigger>
       )}
@@ -122,7 +114,7 @@ export function ComboboxInput({
           )}
           {...clearProps}
         >
-          <XIcon />
+          <IconX />
         </ComboboxClear>
       )}
     </ComboboxPrimitive.InputGroup>
@@ -159,7 +151,7 @@ export function ComboboxPopup({
   anchor?: ComboboxPrimitive.Positioner.Props['anchor'];
   portalProps?: ComboboxPrimitive.Portal.Props;
 }): React.ReactElement {
-  const { chipsRef } = React.useContext(ComboboxContext);
+  const { chipsRef } = use(ComboboxContext);
   const anchor = anchorProp ?? chipsRef;
 
   return (
@@ -346,7 +338,7 @@ export function ComboboxChips({
 }: ComboboxPrimitive.Chips.Props & {
   startAddon?: React.ReactNode;
 }): React.ReactElement {
-  const { chipsRef } = React.useContext(ComboboxContext);
+  const { chipsRef } = use(ComboboxContext);
 
   return (
     <ComboboxPrimitive.Chips
@@ -399,7 +391,7 @@ export function ComboboxChipRemove(props: ComboboxPrimitive.ChipRemove.Props): R
       data-slot="combobox-chip-remove"
       {...props}
     >
-      <XIcon />
+      <IconX />
     </ComboboxPrimitive.ChipRemove>
   );
 }

@@ -41,7 +41,7 @@ export function BrandLogo({ paletteId, onCycle, className }: BrandLogoProps) {
 
   useEffect(() => () => clearTimers(), [clearTimers]);
 
-  const handleClick = useCallback(
+  const triggerColorCycle = useCallback(
     (event: MouseEvent<HTMLButtonElement>) => {
       event.preventDefault();
       clearTimers();
@@ -64,7 +64,7 @@ export function BrandLogo({ paletteId, onCycle, className }: BrandLogoProps) {
   return (
     <button
       type="button"
-      onClick={handleClick}
+      onClick={triggerColorCycle}
       data-pulse={isPulsing}
       data-burst={isBursting}
       data-ripple={isRippling}

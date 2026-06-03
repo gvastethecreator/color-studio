@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { IconLayoutGrid, IconDeviceDesktop, IconRotate } from '@tabler/icons-react';
@@ -57,34 +57,67 @@ const applyTheme = (theme: ThemeMode) => {
   root.dataset.theme = theme;
 };
 
+type ViewState = {
+  activeTab: 'palette' | 'preview';
+  paletteView: PaletteViewMode;
+  copySwatchId: string | null;
+};
+
+type ViewAction =
+  | { type: 'setActiveTab'; value: 'palette' | 'preview' }
+  | { type: 'setPaletteView'; value: PaletteViewMode }
+  | { type: 'copySwatch'; copyId: string }
+  | { type: 'clearCopySwatch' };
+
+const viewReducer = (state: ViewState, action: ViewAction): ViewState => {
+  switch (action.type) {
+    case 'setActiveTab':
+      return { ...state, activeTab: action.value };
+    case 'setPaletteView':
+      return { ...state, paletteView: action.value };
+    case 'copySwatch':
+      return { ...state, copySwatchId: action.copyId };
+    case 'clearCopySwatch':
+      return { ...state, copySwatchId: null };
+  }
+};
+
 export default function App() {
   const [customPresets, setCustomPresets] = useState<PresetRegistry>(readStoredCustomPresets);
   const presetRegistry = useMemo(() => mergePresetRegistries(customPresets), [customPresets]);
   const [settings, setSettings] = useState<GeneratorSettings>(readStoredSettings);
-  const [activeTab, setActiveTab] = useState<'palette' | 'preview'>('palette');
+  const [view, dispatchView] = useReducer(viewReducer, {
+    activeTab: 'palette',
+    paletteView: 'rows',
+    copySwatchId: null,
+  });
   const [selectedFamilyId, setSelectedFamilyId] = useState<string | null>(null);
-  const [copySwatchId, setCopySwatchId] = useState<string | null>(null);
-  const [paletteView, setPaletteView] = useState<PaletteViewMode>('rows');
 
   const palettes = useMemo(
     () => generatePalettes(settings, presetRegistry),
     [presetRegistry, settings],
   );
 
-  useEffect(() => {
-    setSettings((previous) => ensureAvailablePreset(previous, presetRegistry));
-  }, [presetRegistry]);
-
-  useEffect(() => {
-    const nextSettings = ensureAvailablePreset(settings, presetRegistry);
-
-    if (nextSettings !== settings) {
-      setSettings(nextSettings);
-      return;
+  const prevPresetRegistryRef = useRef(presetRegistry);
+  if (presetRegistry !== prevPresetRegistryRef.current) {
+    prevPresetRegistryRef.current = presetRegistry;
+    const adjusted = ensureAvailablePreset(settings, presetRegistry);
+    if (adjusted !== settings) {
+      setSettings(adjusted);
     }
+  }
 
+  if (palettes.length === 0) {
+    if (selectedFamilyId !== null) {
+      setSelectedFamilyId(null);
+    }
+  } else if (!selectedFamilyId || !palettes.some((palette) => palette.id === selectedFamilyId)) {
+    setSelectedFamilyId(palettes[0].id);
+  }
+
+  useEffect(() => {
     writeStoredSettings(settings);
-  }, [presetRegistry, settings]);
+  }, [settings]);
 
   useEffect(() => {
     writeStoredCustomPresets(customPresets);
@@ -114,7 +147,7 @@ export default function App() {
           overrides: {},
         }));
         setSelectedFamilyId(null);
-        setActiveTab('palette');
+        dispatchView({ type: 'setActiveTab', value: 'palette' });
       }
 
       notify(
@@ -130,30 +163,19 @@ export default function App() {
     }
   };
 
-  useEffect(() => {
-    if (palettes.length === 0) {
-      setSelectedFamilyId(null);
-      return;
-    }
-
-    if (!selectedFamilyId || !palettes.some((palette) => palette.id === selectedFamilyId)) {
-      setSelectedFamilyId(palettes[0].id);
-    }
-  }, [palettes, selectedFamilyId]);
-
   const activeFamily = useMemo(
     () => getSafeActiveFamily(palettes, selectedFamilyId),
     [palettes, selectedFamilyId],
   );
 
   useEffect(() => {
-    if (!copySwatchId) {
+    if (!view.copySwatchId) {
       return undefined;
     }
 
-    const timer = window.setTimeout(() => setCopySwatchId(null), 1400);
+    const timer = window.setTimeout(() => dispatchView({ type: 'clearCopySwatch' }), 1400);
     return () => window.clearTimeout(timer);
-  }, [copySwatchId]);
+  }, [view.copySwatchId]);
 
   useGSAP(
     () => {
@@ -175,7 +197,7 @@ export default function App() {
 
       return () => media.revert();
     },
-    { dependencies: [activeTab] },
+    { dependencies: [view.activeTab] },
   );
 
   const handleColorFormatChange = (format: GeneratorSettings['colorFormat']) => {
@@ -185,7 +207,8 @@ export default function App() {
   const handleThemeToggle = useCallback(() => {
     setSettings((previous) => {
       const nextTheme: ThemeMode = previous.theme === 'dark' ? 'light' : 'dark';
-      notify(`${nextTheme === 'dark' ? 'Dark' : 'Light'} theme enabled.`);
+      // Schedule the notification after this tick to avoid updating context during rendering/dispatching state updates
+      setTimeout(() => notify(`${nextTheme === 'dark' ? 'Dark' : 'Light'} theme enabled.`), 0);
       return { ...previous, theme: nextTheme };
     });
   }, []);
@@ -193,17 +216,14 @@ export default function App() {
   const handleCycleAccent = useCallback(() => {
     setSettings((previous) => {
       const nextPalette = getNextAccentPalette(previous.accentPalette);
-      notify(`Accent: ${nextPalette.label}.`);
+      // Schedule the notification after this tick
+      setTimeout(() => notify(`Accent: ${nextPalette.label}.`), 0);
       return { ...previous, accentPalette: nextPalette.id };
     });
   }, []);
 
-  const handleNotifyCopy = (message: string) => {
-    notify(message);
-  };
-
   const handleCopySwatch = (copyId: string) => {
-    setCopySwatchId(copyId);
+    dispatchView({ type: 'copySwatch', copyId });
   };
 
   if (!activeFamily) {
@@ -236,32 +256,34 @@ export default function App() {
         <main className="flex h-full min-h-0 flex-1 flex-col overflow-hidden">
           <header className="flex h-12 shrink-0 items-center justify-between gap-2 border-b border-border bg-background/80 px-3 text-[12px] backdrop-blur-md sm:px-4">
             <div className="flex items-center gap-1.5" data-animate="enter">
-              <span className="font-heading text-[13px] font-semibold tracking-tight">
-                Color Studio
-              </span>
+              <Tabs
+                value={view.activeTab}
+                onValueChange={(value: string) =>
+                  dispatchView({
+                    type: 'setActiveTab',
+                    value: value === 'preview' ? 'preview' : 'palette',
+                  })
+                }
+                className="flex-1 justify-center"
+              >
+                <TabsList variant="default" className="mx-auto h-8">
+                  <TabsTab value="palette" className="h-7 text-[12px]">
+                    <IconLayoutGrid aria-hidden="true" />
+                    Palette
+                  </TabsTab>
+                  <TabsTab value="preview" className="h-7 text-[12px]">
+                    <IconDeviceDesktop aria-hidden="true" />
+                    Preview
+                  </TabsTab>
+                </TabsList>
+              </Tabs>
             </div>
 
-            <Tabs
-              value={activeTab}
-              onValueChange={(value: string) =>
-                setActiveTab(value === 'preview' ? 'preview' : 'palette')
-              }
-              className="flex-1 justify-center"
-            >
-              <TabsList variant="default" className="mx-auto h-8">
-                <TabsTab value="palette" className="h-7 text-[12px]">
-                  <IconLayoutGrid aria-hidden="true" />
-                  Palette
-                </TabsTab>
-                <TabsTab value="preview" className="h-7 text-[12px]">
-                  <IconDeviceDesktop aria-hidden="true" />
-                  Preview
-                </TabsTab>
-              </TabsList>
-            </Tabs>
-
             <div className="flex items-center gap-1" data-animate="enter">
-              <ViewModeSelector value={paletteView} onChange={setPaletteView} />
+              <ViewModeSelector
+                value={view.paletteView}
+                onChange={(value) => dispatchView({ type: 'setPaletteView', value })}
+              />
 
               <Separator orientation="vertical" className="mx-0.5 h-4" />
 
@@ -272,7 +294,7 @@ export default function App() {
               <ExportMenu
                 palettes={palettes}
                 colorFormat={settings.colorFormat}
-                onNotify={handleNotifyCopy}
+                onNotify={notify}
               />
 
               <Button
@@ -293,17 +315,17 @@ export default function App() {
             </div>
           </header>
 
-          {activeTab === 'palette' ? (
-            <div className="flex-1 overflow-y-auto">
+          {view.activeTab === 'palette' ? (
+            <div className="flex-1 min-h-0 flex flex-col">
               <PaletteGrid
                 palettes={palettes}
                 colorFormat={settings.colorFormat}
                 onSelectFamily={setSelectedFamilyId}
                 selectedFamilyId={activeFamily.id}
-                onNotify={handleNotifyCopy}
-                copiedSwatchId={copySwatchId}
+                onNotify={notify}
+                copiedSwatchId={view.copySwatchId}
                 onCopySwatch={handleCopySwatch}
-                viewMode={paletteView}
+                viewMode={view.paletteView}
               />
             </div>
           ) : (

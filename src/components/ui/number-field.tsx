@@ -1,16 +1,12 @@
 'use client';
 
 import { NumberField as NumberFieldPrimitive } from '@base-ui/react/number-field';
-import { MinusIcon, PlusIcon } from 'lucide-react';
+import { IconMinus, IconPlus } from '@tabler/icons-react';
+import { use, useMemo } from 'react';
 import * as React from 'react';
 import { cn } from '@/lib/utils';
 import { Label } from '@/components/ui/label';
-
-export const NumberFieldContext: React.Context<{
-  fieldId: string;
-} | null> = React.createContext<{
-  fieldId: string;
-} | null>(null);
+import { NumberFieldContext } from '@/components/ui/number-field-context';
 
 export function NumberField({
   id,
@@ -22,9 +18,10 @@ export function NumberField({
 }): React.ReactElement {
   const generatedId = React.useId();
   const fieldId = id ?? generatedId;
+  const contextValue = useMemo(() => ({ fieldId }), [fieldId]);
 
   return (
-    <NumberFieldContext.Provider value={{ fieldId }}>
+    <NumberFieldContext.Provider value={contextValue}>
       <NumberFieldPrimitive.Root
         className={cn('flex w-full flex-col items-start gap-2', className)}
         data-size={size}
@@ -65,7 +62,7 @@ export function NumberFieldDecrement({
       data-slot="number-field-decrement"
       {...props}
     >
-      <MinusIcon />
+      <IconMinus />
     </NumberFieldPrimitive.Decrement>
   );
 }
@@ -83,7 +80,7 @@ export function NumberFieldIncrement({
       data-slot="number-field-increment"
       {...props}
     >
-      <PlusIcon />
+      <IconPlus />
     </NumberFieldPrimitive.Increment>
   );
 }
@@ -95,7 +92,7 @@ export function NumberFieldInput({
   return (
     <NumberFieldPrimitive.Input
       className={cn(
-        'h-8.5 in-data-[size=lg]:h-9.5 in-data-[size=sm]:h-7.5 w-full min-w-0 grow bg-transparent in-data-[size=sm]:px-[calc(--spacing(2.5)-1px)] px-[calc(--spacing(3)-1px)] text-center tabular-nums in-data-[size=lg]:leading-9.5 in-data-[size=sm]:leading-7.5 leading-8.5 outline-none [transition:background-color_5000000s_ease-in-out_0s] sm:h-7.5 sm:in-data-[size=lg]:h-8.5 sm:in-data-[size=sm]:h-6.5 sm:in-data-[size=lg]:leading-8.5 sm:in-data-[size=sm]:leading-8.5 sm:leading-7.5',
+        'h-8.5 in-data-[size=lg]:h-9.5 in-data-[size=sm]:h-7.5 w-full min-w-0 grow bg-transparent in-data-[size=sm]:px-[calc(--spacing(2.5)-1px)] px-[calc(--spacing(3)-1px)] text-center tabular-nums in-data-[size=lg]:leading-9.5 in-data-[size=sm]:leading-7.5 leading-8.5 outline-none [transition:background-color_5000000s_ease-in-out_0s] sm:h-7.5 sm:in-data-[size=lg]:h-8.5 sm:in-data-[size=sm]:h-6.5 sm:in-data-[size=lg]:leading-8.5 sm:in-data-[size=sm]:leading-6.5 sm:leading-7.5',
         className,
       )}
       data-slot="number-field-input"
@@ -111,7 +108,7 @@ export function NumberFieldScrubArea({
 }: NumberFieldPrimitive.ScrubArea.Props & {
   label: string;
 }): React.ReactElement {
-  const context = React.useContext(NumberFieldContext);
+  const context = use(NumberFieldContext);
 
   if (!context) {
     throw new Error(
@@ -147,7 +144,7 @@ export function CursorGrowIcon(props: React.ComponentProps<'svg'>): React.ReactE
       xmlns="http://www.w3.org/2000/svg"
       {...props}
     >
-      <path d="M19.5 5.5L6.49737 5.51844V2L1 6.9999L6.5 12L6.49737 8.5L19.5 8.5V12L25 6.9999L19.5 2V5.5Z" />
+      <path d="M19.5 5.5L6.5 5.52V2L1 7L6.5 12L6.5 8.5L19.5 8.5V12L25 7L19.5 2V5.5Z" />
     </svg>
   );
 }

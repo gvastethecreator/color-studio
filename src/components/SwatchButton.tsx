@@ -28,12 +28,12 @@ interface SwatchButtonProps {
 
 const SIZE_CLASSES: Record<NonNullable<SwatchButtonProps['size']>, string> = {
   default: 'h-7 text-[10.5px] gap-0.5',
-  compact: 'h-5 text-[8.5px] gap-0',
-  tiny: 'h-4 text-[7.5px] gap-0',
+  compact: 'h-full text-[8.5px] gap-0',
+  tiny: 'h-full text-[7.5px] gap-0',
 };
 
 const SWATCH_BASE_CLASSES =
-  'group/swatch relative flex w-full items-center justify-center rounded-sm font-mono font-bold transition-[background-color,color,transform,box-shadow] duration-1000 ease-out hover:z-10 hover:scale-[1.08] hover:shadow-md/30 focus-visible:z-10 focus-visible:scale-[1.08] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring';
+  'group/swatch relative flex w-full cursor-pointer items-center justify-center rounded-sm font-mono font-bold swatch-hover-transition hover:z-10 hover:scale-[1.12] hover:shadow-lg/40 focus-visible:z-10 focus-visible:scale-[1.12] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring';
 
 export function SwatchButton({
   family,
@@ -47,7 +47,7 @@ export function SwatchButton({
   onKeyDown,
   size = 'default',
   stepTextClass = 'text-[10.5px]',
-  staggerIndex,
+  staggerIndex: _staggerIndex,
 }: SwatchButtonProps): ReactElement {
   const textColor = getReadableTextColor(step.hex);
   const stepCopyId = `${family.id}-${step.step}`;
@@ -69,13 +69,11 @@ export function SwatchButton({
             type="button"
             data-family-id={family.id}
             data-swatch-index={stepIndex}
-            data-animate="swatch-stagger"
             aria-label={`Copy ${family.name} step ${step.step} value ${copyValue}`}
             className={`${SWATCH_BASE_CLASSES} ${SIZE_CLASSES[size]}`}
             style={{
               backgroundColor: step.css,
               color: textColor,
-              animationDelay: staggerIndex !== undefined ? `${staggerIndex * 18}ms` : undefined,
             }}
             onFocus={() => onSelect(family.id)}
             onClick={(event: MouseEvent<HTMLButtonElement>) => {
@@ -89,11 +87,17 @@ export function SwatchButton({
               className={`flex items-center gap-0.5 opacity-70 transition-opacity group-hover/swatch:opacity-100 group-focus-visible/swatch:opacity-100 ${stepTextClass}`}
             >
               {isCopied ? (
-                <IconCheck aria-hidden="true" className="size-2.5" />
+                <IconCheck
+                  aria-hidden="true"
+                  className="size-2.5 animate-in zoom-in duration-150"
+                />
               ) : (
                 <>
                   <span>{step.step}</span>
-                  <IconCopy aria-hidden="true" className="size-2" />
+                  <IconCopy
+                    aria-hidden="true"
+                    className="size-2 transition-transform duration-250 ease-out origin-center scale-90 group-hover/swatch:scale-100 group-focus-visible/swatch:scale-100"
+                  />
                 </>
               )}
             </span>

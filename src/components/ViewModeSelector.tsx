@@ -40,9 +40,10 @@ export function ViewModeSelector({ value, onChange }: ViewModeSelectorProps): Re
   return (
     <ToggleGroup
       value={value}
-      onValueChange={(next: string) => {
-        if (next) {
-          onChange(next as PaletteViewMode);
+      onValueChange={(next) => {
+        const val = Array.isArray(next) ? next[0] : next;
+        if (val) {
+          onChange(val as PaletteViewMode);
         }
       }}
       aria-label="Palette view mode"

@@ -58,12 +58,238 @@ interface PresetOption {
   name: string;
 }
 
+type DebouncedCommitApi<T> = ReturnType<typeof useDebouncedCommit<T>>;
+
 const formatRangeValue = (value: number, decimals: number): string => {
   const rounded = Math.round(value * 10 ** decimals) / 10 ** decimals;
   return Number.isInteger(rounded) ? rounded.toString() : rounded.toFixed(decimals);
 };
 
 const SLIDER_DEBOUNCE_MS = 800;
+
+function GlobalControlsSection({
+  hueRotation,
+  saturation,
+  brightness,
+}: {
+  hueRotation: DebouncedCommitApi<number>;
+  saturation: DebouncedCommitApi<number>;
+  brightness: DebouncedCommitApi<number>;
+}) {
+  return (
+    <div className="flex flex-col gap-2.5 rounded-lg border border-border bg-card/60 p-2.5 py-4">
+      <div className="flex min-w-0 items-center gap-1">
+        <IconAdjustmentsHorizontal aria-hidden="true" className="size-3 shrink-0 text-primary" />
+        <span className="truncate font-medium text-[11px] px-1">Global</span>
+      </div>
+
+      <Field data-animate="enter" className="mt-2">
+        <Slider
+          value={hueRotation.localValue}
+          min={0}
+          max={360}
+          onValueChange={(value) => {
+            const val = Array.isArray(value) ? value[0] : value;
+            hueRotation.update(val);
+          }}
+          onValueCommitted={() => hueRotation.commitNow()}
+          trackClassName="slider-track-hue"
+        >
+          <div className="mb-3 flex items-center justify-between gap-1">
+            <FieldLabel className="font-medium text-[10px]">Hue rotation</FieldLabel>
+            <SliderValue className="font-mono text-[10.5px] text-muted-foreground">
+              {(values) => <span>{Math.round(values[0] ?? 0)}°</span>}
+            </SliderValue>
+          </div>
+        </Slider>
+      </Field>
+
+      <Field data-animate="enter" className="mt-2">
+        <Slider
+          value={saturation.localValue}
+          min={0}
+          max={2}
+          step={0.05}
+          onValueChange={(value) => {
+            const val = Array.isArray(value) ? value[0] : value;
+            saturation.update(val);
+          }}
+          onValueCommitted={() => saturation.commitNow()}
+        >
+          <div className="mb-3 flex items-center justify-between gap-1">
+            <FieldLabel className="font-medium text-[10px]">Saturation</FieldLabel>
+            <SliderValue className="font-mono text-[10.5px] text-muted-foreground">
+              {(values) => <span>×{formatRangeValue(values[0] ?? 0, 2)}</span>}
+            </SliderValue>
+          </div>
+        </Slider>
+      </Field>
+
+      <Field data-animate="enter" className="mt-2">
+        <Slider
+          value={brightness.localValue}
+          min={0.5}
+          max={1.5}
+          step={0.05}
+          onValueChange={(value) => {
+            const val = Array.isArray(value) ? value[0] : value;
+            brightness.update(val);
+          }}
+          onValueCommitted={() => brightness.commitNow()}
+        >
+          <div className="mb-3 flex items-center justify-between gap-1">
+            <FieldLabel className="font-medium text-[10px]">Brightness</FieldLabel>
+            <SliderValue className="font-mono text-[10.5px] text-muted-foreground">
+              {(values) => <span>×{formatRangeValue(values[0] ?? 0, 2)}</span>}
+            </SliderValue>
+          </div>
+        </Slider>
+      </Field>
+    </div>
+  );
+}
+
+function FamilyOverrideSection({
+  activeFamilyDisplayName,
+  isOverrideDirty,
+  onResetOverride,
+  familyHue,
+  familySaturation,
+  familyBrightness,
+}: {
+  activeFamilyDisplayName: string;
+  isOverrideDirty: boolean;
+  onResetOverride: () => void;
+  familyHue: DebouncedCommitApi<number>;
+  familySaturation: DebouncedCommitApi<number>;
+  familyBrightness: DebouncedCommitApi<number>;
+}) {
+  return (
+    <div
+      className="flex flex-col gap-2.5 rounded-lg border border-border bg-card/60 p-2.5"
+      data-animate="enter"
+    >
+      <div className="flex items-center justify-between h-8">
+        <div className="flex min-w-0 items-center gap-1">
+          <IconAdjustments aria-hidden="true" className="size-3 shrink-0 text-primary" />
+          <span className="truncate font-medium text-[11px] px-1">{activeFamilyDisplayName}</span>
+          <Badge variant="outline" size="sm" className="border-primary/40 text-primary">
+            fine-tune
+          </Badge>
+        </div>
+        {isOverrideDirty && (
+          <Button
+            type="button"
+            size="icon-xs"
+            variant="ghost"
+            onClick={onResetOverride}
+            aria-label="Reset family override"
+            title="Reset family override"
+          >
+            <IconRotate aria-hidden="true" />
+          </Button>
+        )}
+      </div>
+
+      <Field className="mt-2" data-animate="enter">
+        <div className="mb-3 flex items-center justify-between w-full">
+          <FieldLabel className="font-medium text-[10px]">Tone shift</FieldLabel>
+          <NumberField
+            className="w-auto flex-row items-center gap-0"
+            value={familyHue.localValue}
+            min={-30}
+            max={30}
+            onValueChange={(value) => {
+              if (typeof value === 'number') {
+                familyHue.update(value);
+              }
+            }}
+            onValueCommitted={() => familyHue.commitNow()}
+          >
+            <NumberFieldGroup className="h-7 w-[6rem] border-border/60 bg-transparent">
+              <NumberFieldDecrement className="px-1" />
+              <NumberFieldInput
+                aria-label="Tone shift in degrees"
+                className="font-mono text-[10.5px] text-foreground h-full py-0 leading-6.5 text-center"
+              />
+              <NumberFieldIncrement className="px-1" />
+            </NumberFieldGroup>
+          </NumberField>
+        </div>
+        <Slider
+          value={familyHue.localValue}
+          min={-30}
+          max={30}
+          onValueChange={(value) => {
+            const val = Array.isArray(value) ? value[0] : value;
+            familyHue.update(val);
+          }}
+          onValueCommitted={() => familyHue.commitNow()}
+        />
+      </Field>
+
+      <Field className="mt-2" data-animate="enter">
+        <Slider
+          value={familySaturation.localValue}
+          min={0}
+          max={2}
+          step={0.1}
+          onValueChange={(value) => {
+            const val = Array.isArray(value) ? value[0] : value;
+            familySaturation.update(val);
+          }}
+          onValueCommitted={() => familySaturation.commitNow()}
+        >
+          <div className="mb-3 flex items-center justify-between gap-1">
+            <FieldLabel className="font-medium text-[10px]">Saturation</FieldLabel>
+            <SliderValue className="font-mono text-[10.5px] text-muted-foreground">
+              {(values) => <span>×{formatRangeValue(values[0] ?? 0, 2)}</span>}
+            </SliderValue>
+          </div>
+        </Slider>
+      </Field>
+
+      <Field className="mt-2 mb-3" data-animate="enter">
+        <Slider
+          value={familyBrightness.localValue}
+          min={0.5}
+          max={1.5}
+          step={0.05}
+          onValueChange={(value) => {
+            const val = Array.isArray(value) ? value[0] : value;
+            familyBrightness.update(val);
+          }}
+          onValueCommitted={() => familyBrightness.commitNow()}
+        >
+          <div className="mb-3 flex items-center justify-between gap-1">
+            <FieldLabel className="font-medium text-[10px]">Brightness</FieldLabel>
+            <SliderValue className="font-mono text-[10.5px] text-muted-foreground">
+              {(values) => <span>×{formatRangeValue(values[0] ?? 0, 2)}</span>}
+            </SliderValue>
+          </div>
+        </Slider>
+      </Field>
+    </div>
+  );
+}
+
+function ControlPanelFooter() {
+  return (
+    <div className="flex items-center justify-between border-t border-border/50 pt-3 text-[10px] text-muted-foreground bottom-0 absolute w-auto gap-4 p-4 bg-accent/80 end-px rounded-tl-xl">
+      <span className="font-semibold">&copy; gvastethecreator</span>
+      <a
+        href="https://github.com/gvastethecreator/color-studio"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="View source on GitHub"
+        className="inline-flex items-center gap-1 rounded-sm transition-colors hover:text-foreground"
+      >
+        <IconBrandGithub aria-hidden="true" className="size-3.5" />
+        Source
+      </a>
+    </div>
+  );
+}
 
 export default function ControlPanel({
   settings,
@@ -168,7 +394,7 @@ export default function ControlPanel({
     currentOverride.lightnessScale !== 1;
 
   return (
-    <aside className="flex w-full shrink-0 flex-col gap-4 overflow-y-auto border-b border-border bg-card/40 p-3 text-[11px] leading-tight md:h-dvh md:w-72 md:border-b-0 md:border-r">
+    <aside className="flex w-full shrink-0 flex-col gap-4 overflow-y-auto border-b border-border bg-card/40 p-3 text-[11px] leading-tight md:h-dvh md:w-72 md:border-b-0 md:border-r relative">
       <header className="flex items-center justify-between gap-2" data-animate="enter">
         <div className="flex items-center gap-1.5">
           <BrandLogo paletteId={accentPalette} onCycle={onCycleAccent} />
@@ -182,9 +408,9 @@ export default function ControlPanel({
         )}
       </header>
 
-      <Field data-animate="enter">
-        <FieldLabel className="text-[10px]">Preset</FieldLabel>
+      <Field className="mt-2" data-animate="enter">
         <div className="flex items-center gap-1">
+          <FieldLabel className="text-[10px]">Palette</FieldLabel>
           <Select<PresetOption>
             items={presetOptionsList}
             value={currentPreset ?? presetOptionsList[0]}
@@ -218,6 +444,7 @@ export default function ControlPanel({
             data-testid="preset-import-input"
             type="file"
             accept=".json,application/json"
+            aria-label="Import custom preset JSON file"
             className="hidden"
             onChange={(event) => {
               void handleImportChange(event);
@@ -235,200 +462,40 @@ export default function ControlPanel({
             <IconFileUpload aria-hidden="true" />
           </Button>
         </div>
-        {currentPreset && presetOptions[currentPreset.id] && (
-          <FieldDescription className="text-[10.5px]">
-            {presetOptions[currentPreset.id]?.description}
-          </FieldDescription>
-        )}
       </Field>
 
       <Separator />
 
-      <div className="flex flex-col gap-2.5" data-animate="enter">
-        <div className="flex items-center gap-1 text-muted-foreground text-[10px] uppercase tracking-wider">
-          <IconAdjustmentsHorizontal aria-hidden="true" className="size-3" />
-          Global
-        </div>
-
-        <Field>
-          <Slider
-            value={hueRotation.localValue}
-            min={0}
-            max={360}
-            onValueChange={(value) => hueRotation.update(value as number)}
-            onValueCommitted={() => hueRotation.commitNow()}
-          >
-            <div className="mb-3 flex items-center justify-between gap-1">
-              <FieldLabel className="font-medium text-[10px]">Hue rotation</FieldLabel>
-              <SliderValue className="font-mono text-[10.5px] text-muted-foreground">
-                {(values) => <span>{Math.round(values[0] ?? 0)}°</span>}
-              </SliderValue>
-            </div>
-          </Slider>
-          <div className="mt-2 h-1 rounded-full bg-gradient-to-r from-red-500 via-green-500 to-blue-500 opacity-25" />
-        </Field>
-
-        <Field>
-          <Slider
-            value={saturation.localValue}
-            min={0}
-            max={2}
-            step={0.05}
-            onValueChange={(value) => saturation.update(value as number)}
-            onValueCommitted={() => saturation.commitNow()}
-          >
-            <div className="mb-3 flex items-center justify-between gap-1">
-              <FieldLabel className="font-medium text-[10px]">Saturation</FieldLabel>
-              <SliderValue className="font-mono text-[10.5px] text-muted-foreground">
-                {(values) => <span>×{formatRangeValue(values[0] ?? 0, 2)}</span>}
-              </SliderValue>
-            </div>
-          </Slider>
-        </Field>
-
-        <Field>
-          <Slider
-            value={brightness.localValue}
-            min={0.5}
-            max={1.5}
-            step={0.05}
-            onValueChange={(value) => brightness.update(value as number)}
-            onValueCommitted={() => brightness.commitNow()}
-          >
-            <div className="mb-3 flex items-center justify-between gap-1">
-              <FieldLabel className="font-medium text-[10px]">Brightness</FieldLabel>
-              <SliderValue className="font-mono text-[10.5px] text-muted-foreground">
-                {(values) => <span>×{formatRangeValue(values[0] ?? 0, 2)}</span>}
-              </SliderValue>
-            </div>
-          </Slider>
-        </Field>
-      </div>
+      <GlobalControlsSection
+        hueRotation={hueRotation}
+        saturation={saturation}
+        brightness={brightness}
+      />
 
       <Separator />
 
-      <div
-        className="flex flex-col gap-2.5 rounded-lg border border-border bg-card/60 p-2.5"
-        data-animate="enter"
-      >
-        <div className="flex items-center justify-between h-8">
-          <div className="flex min-w-0 items-center gap-1">
-            <IconAdjustments aria-hidden="true" className="size-3 shrink-0 text-primary" />
-            <span className="truncate font-medium text-[10px]">{activeFamilyDisplayName}</span>
-            <Badge variant="outline" size="sm" className="border-primary/40 text-primary">
-              fine-tune
-            </Badge>
-          </div>
-          {isOverrideDirty && (
-            <Button
-              type="button"
-              size="icon-xs"
-              variant="ghost"
-              onClick={resetOverride}
-              aria-label="Reset family override"
-              title="Reset family override"
-            >
-              <IconRotate aria-hidden="true" />
-            </Button>
-          )}
-        </div>
-
-        <Field>
-          <div className="mb-1 flex items-center justify-between w-full">
-            <FieldLabel className="font-medium text-[10px]">Tone shift</FieldLabel>
-            <NumberField
-              className="w-auto"
-              value={familyHue.localValue}
-              min={-30}
-              max={30}
-              onValueChange={(value) => {
-                if (typeof value === 'number') {
-                  familyHue.update(value);
-                }
-              }}
-              onValueCommitted={() => familyHue.commitNow()}
-            >
-              <NumberFieldGroup className="h-5 w-[6rem] border-border/60 bg-transparent">
-                <NumberFieldDecrement className="px-1" />
-                <NumberFieldInput
-                  aria-label="Tone shift in degrees"
-                  className="font-mono text-[9px] text-foreground"
-                />
-                <NumberFieldIncrement className="px-1" />
-              </NumberFieldGroup>
-            </NumberField>
-          </div>
-          <Slider
-            value={familyHue.localValue}
-            min={-30}
-            max={30}
-            onValueChange={(value) => familyHue.update(value as number)}
-            onValueCommitted={() => familyHue.commitNow()}
-          />
-        </Field>
-
-        <Field>
-          <Slider
-            value={familySaturation.localValue}
-            min={0}
-            max={2}
-            step={0.1}
-            onValueChange={(value) => familySaturation.update(value as number)}
-            onValueCommitted={() => familySaturation.commitNow()}
-          >
-            <div className="mb-1 flex items-center justify-between gap-1">
-              <FieldLabel className="font-medium text-[10px]">Saturation</FieldLabel>
-              <SliderValue className="font-mono text-[10.5px] text-muted-foreground">
-                {(values) => <span>×{formatRangeValue(values[0] ?? 0, 2)}</span>}
-              </SliderValue>
-            </div>
-          </Slider>
-        </Field>
-
-        <Field>
-          <Slider
-            value={familyBrightness.localValue}
-            min={0.5}
-            max={1.5}
-            step={0.05}
-            onValueChange={(value) => familyBrightness.update(value as number)}
-            onValueCommitted={() => familyBrightness.commitNow()}
-          >
-            <div className="mb-1 flex items-center justify-between gap-1">
-              <FieldLabel className="font-medium text-[10px]">Brightness</FieldLabel>
-              <SliderValue className="font-mono text-[10.5px] text-muted-foreground">
-                {(values) => <span>×{formatRangeValue(values[0] ?? 0, 2)}</span>}
-              </SliderValue>
-            </div>
-          </Slider>
-        </Field>
-      </div>
+      <FamilyOverrideSection
+        activeFamilyDisplayName={activeFamilyDisplayName}
+        isOverrideDirty={isOverrideDirty}
+        onResetOverride={resetOverride}
+        familyHue={familyHue}
+        familySaturation={familySaturation}
+        familyBrightness={familyBrightness}
+      />
 
       <Button
         type="button"
         variant="default"
         size="xs"
         onClick={onReset}
-        className="mt-auto self-start"
+        className="self-end gap-1 px-4 mt-2"
         data-animate="enter"
       >
         <IconRotate aria-hidden="true" />
         Reset all
       </Button>
 
-      <div className="flex items-center justify-between border-t border-border/50 pt-3 text-[10px] text-muted-foreground">
-        <span>&copy; gvastethecreator</span>
-        <a
-          href="https://github.com/gvastethecreator/color-studio"
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="View source on GitHub"
-          className="inline-flex items-center gap-1 rounded-sm transition-colors hover:text-foreground"
-        >
-          <IconBrandGithub aria-hidden="true" className="size-3.5" />
-          Source
-        </a>
-      </div>
+      <ControlPanelFooter />
     </aside>
   );
 }

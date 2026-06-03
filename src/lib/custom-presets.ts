@@ -93,11 +93,12 @@ export const parseCustomPresetData = (
   }
 
   const registry: PresetRegistry = {};
+  const reservedLookup = new Set(reservedIds);
 
   for (const [fallbackId, entry] of entries) {
     const [id, preset] = normalizePreset(entry, fallbackId);
 
-    if (reservedIds.includes(id)) {
+    if (reservedLookup.has(id)) {
       throw new Error(`Preset id "${id}" collides with an existing built-in preset.`);
     }
 

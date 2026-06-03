@@ -6,9 +6,9 @@ import { mergeProps } from '@base-ui/react/merge-props';
 import { Radio as RadioPrimitive } from '@base-ui/react/radio';
 import { RadioGroup as RadioGroupPrimitive } from '@base-ui/react/radio-group';
 import { useRender } from '@base-ui/react/use-render';
-import { ChevronRightIcon, XIcon } from 'lucide-react';
+import { IconChevronRight, IconX } from '@tabler/icons-react';
 import type React from 'react';
-import { createContext, useContext } from 'react';
+import { use, createContext, useMemo } from 'react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -37,8 +37,10 @@ export function Drawer({
 }: DrawerPrimitive.Root.Props & {
   position?: DrawerPosition;
 }): React.ReactElement {
+  const contextValue = useMemo(() => ({ position }), [position]);
+
   return (
-    <DrawerContext.Provider value={{ position }}>
+    <DrawerContext.Provider value={contextValue}>
       <DrawerPrimitive.Root swipeDirection={swipeDirection ?? directionMap[position]} {...props} />
     </DrawerContext.Provider>
   );
@@ -61,7 +63,7 @@ export function DrawerSwipeArea({
 }: DrawerPrimitive.SwipeArea.Props & {
   position?: DrawerPosition;
 }): React.ReactElement {
-  const { position: contextPosition } = useContext(DrawerContext);
+  const { position: contextPosition } = use(DrawerContext);
   const position = positionProp ?? contextPosition;
 
   return (
@@ -141,7 +143,7 @@ export function DrawerPopup({
   showBar?: boolean;
   portalProps?: DrawerPrimitive.Portal.Props;
 }): React.ReactElement {
-  const { position: contextPosition } = useContext(DrawerContext);
+  const { position: contextPosition } = use(DrawerContext);
   const position = positionProp ?? contextPosition;
 
   return (
@@ -202,7 +204,7 @@ export function DrawerPopup({
               className="absolute end-2 top-2"
               render={<Button size="icon" variant="ghost" />}
             >
-              <XIcon />
+              <IconX />
             </DrawerPrimitive.Close>
           )}
           {showBar && <DrawerBar />}
@@ -338,7 +340,7 @@ export function DrawerBar({
 }: useRender.ComponentProps<'div'> & {
   position?: DrawerPosition;
 }): React.ReactElement {
-  const { position: contextPosition } = useContext(DrawerContext);
+  const { position: contextPosition } = use(DrawerContext);
   const position = positionProp ?? contextPosition;
   const horizontal = position === 'left' || position === 'right';
   const defaultProps = {
@@ -474,7 +476,7 @@ export function DrawerMenuTrigger({
       {...props}
     >
       {children}
-      <ChevronRightIcon className="ms-auto -me-0.5 opacity-80" />
+      <IconChevronRight className="ms-auto -me-0.5 opacity-80" />
     </DrawerTrigger>
   );
 }
