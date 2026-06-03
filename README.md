@@ -1,5 +1,7 @@
-# Color Studio
+# Color Studio 
+
 > <img src="docs/color.png" align="right"/>
+
 
 
 [![Bun](https://www.shieldcn.dev/badge/Bun-000000.svg?logo=bun&variant=primary&size=xs)](https://bun.sh)
@@ -25,9 +27,6 @@
 
 🟫 **Export** generated color scales to CSS Custom Properties, Tailwind 4 `@theme` syntax, or raw JSON.
 
-
-
-
 ## Getting Started
 
 Make sure you have [Bun](https://bun.sh) installed.
@@ -46,10 +45,11 @@ bun run dev
 - For deep technical details, check the [docs](docs/README.md) folder.
 - For feature requests and suggestions, create an issue or submit a PR.
 - If you like this project, consider giving it a star.
+---
 
-
-<h4 align="right">Support further development:</h4>
+<h4 align="right">Support further development of this tool</h4>
 <p align="right">
-  <a href="#"><img src="https://shieldcn.dev/badge/%E2%9D%A4-sponsor%20this%20project-red.svg" alt="Sponsor this project" /></a>
+  <a href="https://github.com/sponsors/gvastethecreator/"><img src="https://shieldcn.dev/badge/%E2%9D%A4-sponsor%20this%20project-red.svg?animate=pulse" alt="Sponsor this project" /></a>
   <a href="https://x.com/gvastebb"><img src="https://shieldcn.dev/x/mention/gvastebb.svg?variant=branded" alt="Follow on X" /></a>
+  
 </p>
