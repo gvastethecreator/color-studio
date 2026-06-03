@@ -51,5 +51,5 @@ bun run dev
 <h4 align="right">Support further development:</h4>
 <p align="right">
   <a href="#"><img src="https://shieldcn.dev/badge/%E2%9D%A4-sponsor%20this%20project-red.svg" alt="Sponsor this project" /></a>
-  <a href="#"><img src="https://shieldcn.dev/x/mention/gvastebb.svg?variant=branded" alt="Follow on X" /></a>
+  <a href="https://x.com/gvastebb"><img src="https://shieldcn.dev/x/mention/gvastebb.svg?variant=branded" alt="Follow on X" /></a>
 </p>
