@@ -1,5 +1,7 @@
 import { PRESETS } from '@/data/presets';
 import { parseCustomPresetData } from '@/lib/custom-presets';
+import { COLOR_FORMATS } from '@/lib/color-formats';
+import { isAccentPalette } from '@/lib/accent-palettes';
 import { createDefaultSettings } from '@/types/palette';
 import type { GeneratorSettings, PresetRegistry } from '@/types/palette';
 
@@ -69,12 +71,27 @@ export const readStoredSettings = (): GeneratorSettings => {
         )
       : {};
 
+    const colorFormat =
+      typeof parsed.colorFormat === 'string' &&
+      COLOR_FORMATS.some((format) => format.id === parsed.colorFormat)
+        ? (parsed.colorFormat as GeneratorSettings['colorFormat'])
+        : defaults.colorFormat;
+
+    const theme: GeneratorSettings['theme'] = parsed.theme === 'light' ? 'light' : 'dark';
+
+    const accentPalette: GeneratorSettings['accentPalette'] = isAccentPalette(parsed.accentPalette)
+      ? parsed.accentPalette
+      : defaults.accentPalette;
+
     return {
       preset: typeof parsed.preset === 'string' ? parsed.preset : defaults.preset,
       hueShift: toFiniteNumber(parsed.hueShift, defaults.hueShift),
       chromaScale: toFiniteNumber(parsed.chromaScale, defaults.chromaScale),
       lightnessScale: toFiniteNumber(parsed.lightnessScale, defaults.lightnessScale),
       overrides,
+      colorFormat,
+      theme,
+      accentPalette,
     };
   } catch {
     return defaults;

@@ -5,12 +5,12 @@ import { createDefaultSettings } from '@/types/palette';
 
 describe('PreviewPanel', () => {
   it('renders semantic preview content for the active family', () => {
-    const family = generatePalettes(createDefaultSettings())[0];
+    const family = generatePalettes(createDefaultSettings())[0]!;
 
-    render(<PreviewPanel activeFamily={family!} />);
+    render(<PreviewPanel activeFamily={family} />);
 
     expect(screen.getByText('Overview')).toBeInTheDocument();
     expect(screen.getByText('Traffic Analysis')).toBeInTheDocument();
-    expect(screen.getByText('Upgrade Plan')).toBeInTheDocument();
+    expect(screen.getByText(/upgrade plan/i)).toBeInTheDocument();
   });
 });

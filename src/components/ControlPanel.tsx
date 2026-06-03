@@ -1,18 +1,42 @@
 import { useRef } from 'react';
 import type { ChangeEvent, Dispatch, SetStateAction } from 'react';
 import {
-  Grid,
-  Palette,
-  RefreshCcw,
-  RotateCcw,
-  Settings2,
-  Sliders,
-  Sun,
-  Upload,
-} from 'lucide-react';
+  IconBrandGithub,
+  IconFileUpload,
+  IconRotate,
+  IconAdjustments,
+  IconAdjustmentsHorizontal,
+  IconSparkles,
+} from '@tabler/icons-react';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Field, FieldDescription, FieldLabel } from '@/components/ui/field';
+import {
+  NumberField,
+  NumberFieldDecrement,
+  NumberFieldGroup,
+  NumberFieldIncrement,
+  NumberFieldInput,
+} from '@/components/ui/number-field';
+import {
+  Select,
+  SelectItem,
+  SelectPopup,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Separator } from '@/components/ui/separator';
+import { Slider, SliderValue } from '@/components/ui/slider';
+import { useDebouncedCommit } from '@/hooks/use-debounced-commit';
+import { BrandLogo } from '@/components/BrandLogo';
 import { PRESETS } from '@/data/presets';
 import { DEFAULT_OVERRIDE } from '@/types/palette';
-import type { FamilyOverride, GeneratorSettings, PresetRegistry } from '@/types/palette';
+import type {
+  AccentPaletteId,
+  FamilyOverride,
+  GeneratorSettings,
+  PresetRegistry,
+} from '@/types/palette';
 
 interface ControlPanelProps {
   settings: GeneratorSettings;
@@ -23,9 +47,23 @@ interface ControlPanelProps {
   presetOptions?: PresetRegistry;
   customPresetCount?: number;
   onImportPreset?: (file: File) => Promise<void> | void;
+  accentPalette: AccentPaletteId;
+  onCycleAccent: () => void;
 }
 
 type OverrideKey = keyof Pick<FamilyOverride, 'hueShift' | 'chromaScale' | 'lightnessScale'>;
+
+interface PresetOption {
+  id: string;
+  name: string;
+}
+
+const formatRangeValue = (value: number, decimals: number): string => {
+  const rounded = Math.round(value * 10 ** decimals) / 10 ** decimals;
+  return Number.isInteger(rounded) ? rounded.toString() : rounded.toFixed(decimals);
+};
+
+const SLIDER_DEBOUNCE_MS = 800;
 
 export default function ControlPanel({
   settings,
@@ -36,10 +74,17 @@ export default function ControlPanel({
   presetOptions = PRESETS,
   customPresetCount = 0,
   onImportPreset,
+  accentPalette,
+  onCycleAccent,
 }: ControlPanelProps) {
   const currentOverride = settings.overrides[activeFamilyId] ?? DEFAULT_OVERRIDE;
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const availablePresets = presetOptions;
+
+  const presetOptionsList: PresetOption[] = Object.entries(presetOptions).map(([id, preset]) => ({
+    id,
+    name: preset.name,
+  }));
+  const currentPreset = presetOptionsList.find((option) => option.id === settings.preset);
 
   const handleImportChange = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -52,7 +97,7 @@ export default function ControlPanel({
   };
 
   const handleGlobalChange = (
-    key: keyof Omit<GeneratorSettings, 'overrides'>,
+    key: keyof Omit<GeneratorSettings, 'overrides' | 'colorFormat' | 'theme'>,
     value: number | string,
   ) => {
     setSettings((previous) => ({
@@ -86,48 +131,88 @@ export default function ControlPanel({
     });
   };
 
-  return (
-    <aside className="sticky top-0 flex h-auto w-full shrink-0 flex-col gap-8 overflow-y-auto border-b border-(--color-border-default) bg-(--color-surface-1) p-6 md:h-screen md:w-80 md:border-r md:border-b-0">
-      <div className="mb-2 flex items-center gap-3" data-animate="enter">
-        <div className="rounded-lg bg-linear-to-br from-indigo-500 to-purple-600 p-2">
-          <Palette className="h-6 w-6 text-white" />
-        </div>
-        <h1 className="bg-linear-to-r from-white to-gray-400 bg-clip-text text-xl font-bold text-transparent">
-          Color Studio
-        </h1>
-      </div>
+  const hueRotation = useDebouncedCommit(
+    settings.hueShift,
+    (value) => handleGlobalChange('hueShift', value),
+    SLIDER_DEBOUNCE_MS,
+  );
+  const saturation = useDebouncedCommit(
+    settings.chromaScale,
+    (value) => handleGlobalChange('chromaScale', value),
+    SLIDER_DEBOUNCE_MS,
+  );
+  const brightness = useDebouncedCommit(
+    settings.lightnessScale,
+    (value) => handleGlobalChange('lightnessScale', value),
+    SLIDER_DEBOUNCE_MS,
+  );
+  const familyHue = useDebouncedCommit(
+    currentOverride.hueShift,
+    (value) => handleOverrideChange('hueShift', value),
+    SLIDER_DEBOUNCE_MS,
+  );
+  const familySaturation = useDebouncedCommit(
+    currentOverride.chromaScale,
+    (value) => handleOverrideChange('chromaScale', value),
+    SLIDER_DEBOUNCE_MS,
+  );
+  const familyBrightness = useDebouncedCommit(
+    currentOverride.lightnessScale,
+    (value) => handleOverrideChange('lightnessScale', value),
+    SLIDER_DEBOUNCE_MS,
+  );
 
-      <div className="space-y-8">
-        <section className="space-y-2" data-animate="enter">
-          <label className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-(--color-text-muted)">
-            <Grid className="h-3 w-3" /> Preset Collection
-          </label>
-          <div className="relative">
-            <select
-              value={settings.preset}
-              onChange={(event) => handleGlobalChange('preset', event.target.value)}
-              className="w-full cursor-pointer appearance-none rounded-lg border border-(--color-border-default) bg-(--color-surface-2) p-2.5 text-sm text-white outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500"
+  const isOverrideDirty =
+    currentOverride.hueShift !== 0 ||
+    currentOverride.chromaScale !== 1 ||
+    currentOverride.lightnessScale !== 1;
+
+  return (
+    <aside className="flex w-full shrink-0 flex-col gap-4 overflow-y-auto border-b border-border bg-card/40 p-3 text-[11px] leading-tight md:h-dvh md:w-72 md:border-b-0 md:border-r">
+      <header className="flex items-center justify-between gap-2" data-animate="enter">
+        <div className="flex items-center gap-1.5">
+          <BrandLogo paletteId={accentPalette} onCycle={onCycleAccent} />
+          <h1 className="font-heading text-sm font-semibold tracking-tight">Color Studio</h1>
+        </div>
+        {customPresetCount > 0 && (
+          <Badge variant="secondary" size="sm">
+            <IconSparkles aria-hidden="true" />
+            {customPresetCount}
+          </Badge>
+        )}
+      </header>
+
+      <Field data-animate="enter">
+        <FieldLabel className="text-[10px]">Preset</FieldLabel>
+        <div className="flex items-center gap-1">
+          <Select<PresetOption>
+            items={presetOptionsList}
+            value={currentPreset ?? presetOptionsList[0]}
+            onValueChange={(next) => {
+              if (next) {
+                handleGlobalChange('preset', next.id);
+              }
+            }}
+            itemToStringValue={(item) => item.id}
+          >
+            <SelectTrigger
+              aria-label="Color preset"
+              data-testid="preset-select-trigger"
+              size="sm"
+              className="min-w-0 flex-1"
             >
-              {Object.entries(availablePresets).map(([key, preset]) => (
-                <option key={key} value={key}>
-                  {preset.name}
-                </option>
+              <SelectValue placeholder="Choose a preset">
+                {(item: PresetOption | null) => <span>{item?.name ?? 'Choose a preset'}</span>}
+              </SelectValue>
+            </SelectTrigger>
+            <SelectPopup alignItemWithTrigger={false}>
+              {presetOptionsList.map((option) => (
+                <SelectItem key={option.id} value={option}>
+                  {option.name}
+                </SelectItem>
               ))}
-            </select>
-            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
-              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M19 9l-7 7-7-7"
-                />
-              </svg>
-            </div>
-          </div>
-          <p className="text-[10px] text-(--color-text-muted)">
-            {availablePresets[settings.preset]?.description}
-          </p>
+            </SelectPopup>
+          </Select>
           <input
             ref={fileInputRef}
             data-testid="preset-import-input"
@@ -138,193 +223,211 @@ export default function ControlPanel({
               void handleImportChange(event);
             }}
           />
-          <div className="flex items-center justify-between gap-3 pt-1">
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              disabled={!onImportPreset}
-              className="inline-flex items-center gap-2 rounded-md border border-(--color-border-default) bg-(--color-surface-2) px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-(--color-surface-1) disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              <Upload className="h-3.5 w-3.5" />
-              Import preset JSON
-            </button>
+          <Button
+            type="button"
+            size="icon-sm"
+            variant="outline"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={!onImportPreset}
+            aria-label="Import preset JSON"
+            title="Import preset JSON"
+          >
+            <IconFileUpload aria-hidden="true" />
+          </Button>
+        </div>
+        {currentPreset && presetOptions[currentPreset.id] && (
+          <FieldDescription className="text-[10.5px]">
+            {presetOptions[currentPreset.id]?.description}
+          </FieldDescription>
+        )}
+      </Field>
 
-            {customPresetCount > 0 && (
-              <span className="text-[10px] text-(--color-text-muted)">
-                {customPresetCount} custom preset{customPresetCount === 1 ? '' : 's'} loaded
-              </span>
-            )}
-          </div>
-        </section>
+      <Separator />
 
-        <section className="space-y-6 border-t border-[#222] pt-4" data-animate="enter">
-          <h2 className="text-xs font-bold uppercase tracking-wider text-(--color-text-muted)">
-            Global Controls
-          </h2>
+      <div className="flex flex-col gap-2.5" data-animate="enter">
+        <div className="flex items-center gap-1 text-muted-foreground text-[10px] uppercase tracking-wider">
+          <IconAdjustmentsHorizontal aria-hidden="true" className="size-3" />
+          Global
+        </div>
 
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <label className="flex items-center gap-2 text-sm font-medium text-gray-300">
-                <RefreshCcw className="h-4 w-4" /> Global Rotation
-              </label>
-              <span className="font-mono text-xs text-(--color-text-muted)">
-                {settings.hueShift}°
-              </span>
+        <Field>
+          <Slider
+            value={hueRotation.localValue}
+            min={0}
+            max={360}
+            onValueChange={(value) => hueRotation.update(value as number)}
+            onValueCommitted={() => hueRotation.commitNow()}
+          >
+            <div className="mb-3 flex items-center justify-between gap-1">
+              <FieldLabel className="font-medium text-[10px]">Hue rotation</FieldLabel>
+              <SliderValue className="font-mono text-[10.5px] text-muted-foreground">
+                {(values) => <span>{Math.round(values[0] ?? 0)}°</span>}
+              </SliderValue>
             </div>
-            <input
-              type="range"
-              min="0"
-              max="360"
-              value={settings.hueShift}
-              onChange={(event) => handleGlobalChange('hueShift', Number(event.target.value))}
-              className="h-2 w-full cursor-pointer appearance-none rounded-lg bg-gray-800 accent-indigo-500"
-            />
-            <div className="h-1.5 w-full rounded-full bg-linear-to-r from-red-500 via-green-500 to-blue-500 opacity-20" />
-          </div>
+          </Slider>
+          <div className="mt-2 h-1 rounded-full bg-gradient-to-r from-red-500 via-green-500 to-blue-500 opacity-25" />
+        </Field>
 
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <label className="flex items-center gap-2 text-sm font-medium text-gray-300">
-                <Settings2 className="h-4 w-4" /> Global Saturation
-              </label>
-              <span className="font-mono text-xs text-(--color-text-muted)">
-                x{settings.chromaScale.toFixed(2)}
-              </span>
+        <Field>
+          <Slider
+            value={saturation.localValue}
+            min={0}
+            max={2}
+            step={0.05}
+            onValueChange={(value) => saturation.update(value as number)}
+            onValueCommitted={() => saturation.commitNow()}
+          >
+            <div className="mb-3 flex items-center justify-between gap-1">
+              <FieldLabel className="font-medium text-[10px]">Saturation</FieldLabel>
+              <SliderValue className="font-mono text-[10.5px] text-muted-foreground">
+                {(values) => <span>×{formatRangeValue(values[0] ?? 0, 2)}</span>}
+              </SliderValue>
             </div>
-            <input
-              type="range"
-              min="0"
-              max="2"
-              step="0.05"
-              value={settings.chromaScale}
-              onChange={(event) => handleGlobalChange('chromaScale', Number(event.target.value))}
-              className="h-2 w-full cursor-pointer appearance-none rounded-lg bg-gray-800 accent-pink-500"
-            />
-          </div>
+          </Slider>
+        </Field>
 
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <label className="flex items-center gap-2 text-sm font-medium text-gray-300">
-                <Sun className="h-4 w-4" /> Global Brightness
-              </label>
-              <span className="font-mono text-xs text-(--color-text-muted)">
-                x{settings.lightnessScale.toFixed(2)}
-              </span>
+        <Field>
+          <Slider
+            value={brightness.localValue}
+            min={0.5}
+            max={1.5}
+            step={0.05}
+            onValueChange={(value) => brightness.update(value as number)}
+            onValueCommitted={() => brightness.commitNow()}
+          >
+            <div className="mb-3 flex items-center justify-between gap-1">
+              <FieldLabel className="font-medium text-[10px]">Brightness</FieldLabel>
+              <SliderValue className="font-mono text-[10.5px] text-muted-foreground">
+                {(values) => <span>×{formatRangeValue(values[0] ?? 0, 2)}</span>}
+              </SliderValue>
             </div>
-            <input
-              type="range"
-              min="0.5"
-              max="1.5"
-              step="0.05"
-              value={settings.lightnessScale}
-              onChange={(event) => handleGlobalChange('lightnessScale', Number(event.target.value))}
-              className="h-2 w-full cursor-pointer appearance-none rounded-lg bg-gray-800 accent-yellow-500"
-            />
-          </div>
-        </section>
-
-        <section
-          className="space-y-5 rounded-xl border border-(--color-border-default) bg-(--color-surface-2) p-4"
-          data-animate="enter"
-        >
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Sliders className="h-4 w-4 text-indigo-400" />
-              <span className="max-w-37.5 truncate text-sm font-bold text-white">
-                {activeFamilyDisplayName}
-              </span>
-            </div>
-            {(currentOverride.hueShift !== 0 ||
-              currentOverride.chromaScale !== 1 ||
-              currentOverride.lightnessScale !== 1) && (
-              <button
-                type="button"
-                onClick={resetOverride}
-                title="Reset Family"
-                className="text-(--color-text-muted) transition-colors hover:text-white"
-              >
-                <RotateCcw className="h-3 w-3" />
-              </button>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <label className="text-xs text-gray-400">Tone Shift (Hue)</label>
-              <span className="font-mono text-xs text-(--color-text-muted)">
-                {currentOverride.hueShift > 0 ? '+' : ''}
-                {currentOverride.hueShift}°
-              </span>
-            </div>
-            <input
-              type="range"
-              min="-30"
-              max="30"
-              value={currentOverride.hueShift}
-              onChange={(event) => handleOverrideChange('hueShift', Number(event.target.value))}
-              className="h-1.5 w-full cursor-pointer appearance-none rounded-lg bg-gray-800 accent-indigo-400"
-            />
-            <div className="flex justify-between font-mono text-[10px] text-gray-600">
-              <span>-30°</span>
-              <span>0</span>
-              <span>+30°</span>
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <label className="text-xs text-gray-400">Saturation Boost</label>
-              <span className="font-mono text-xs text-(--color-text-muted)">
-                x{currentOverride.chromaScale.toFixed(2)}
-              </span>
-            </div>
-            <input
-              type="range"
-              min="0"
-              max="2"
-              step="0.1"
-              value={currentOverride.chromaScale}
-              onChange={(event) => handleOverrideChange('chromaScale', Number(event.target.value))}
-              className="h-1.5 w-full cursor-pointer appearance-none rounded-lg bg-gray-800 accent-indigo-400"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <label className="text-xs text-gray-400">Brightness Boost</label>
-              <span className="font-mono text-xs text-(--color-text-muted)">
-                x{currentOverride.lightnessScale.toFixed(2)}
-              </span>
-            </div>
-            <input
-              type="range"
-              min="0.5"
-              max="1.5"
-              step="0.05"
-              value={currentOverride.lightnessScale}
-              onChange={(event) =>
-                handleOverrideChange('lightnessScale', Number(event.target.value))
-              }
-              className="h-1.5 w-full cursor-pointer appearance-none rounded-lg bg-gray-800 accent-indigo-400"
-            />
-          </div>
-        </section>
-
-        <button
-          type="button"
-          onClick={onReset}
-          className="w-full rounded-md border border-gray-800 bg-[#222] px-4 py-2 text-sm text-gray-300 transition-colors hover:bg-[#333]"
-          data-animate="enter"
-        >
-          Reset All Global & Local
-        </button>
+          </Slider>
+        </Field>
       </div>
 
-      <div className="mt-auto border-t border-(--color-border-default) pt-6">
-        <p className="text-xs leading-relaxed text-(--color-text-muted)">
-          Select a row in the grid to enable the fine-tune controls for that specific family. Tone
-          Shift is limited to ±30° to preserve harmony.
-        </p>
+      <Separator />
+
+      <div
+        className="flex flex-col gap-2.5 rounded-lg border border-border bg-card/60 p-2.5"
+        data-animate="enter"
+      >
+        <div className="flex items-center justify-between h-8">
+          <div className="flex min-w-0 items-center gap-1">
+            <IconAdjustments aria-hidden="true" className="size-3 shrink-0 text-primary" />
+            <span className="truncate font-medium text-[10px]">{activeFamilyDisplayName}</span>
+            <Badge variant="outline" size="sm" className="border-primary/40 text-primary">
+              fine-tune
+            </Badge>
+          </div>
+          {isOverrideDirty && (
+            <Button
+              type="button"
+              size="icon-xs"
+              variant="ghost"
+              onClick={resetOverride}
+              aria-label="Reset family override"
+              title="Reset family override"
+            >
+              <IconRotate aria-hidden="true" />
+            </Button>
+          )}
+        </div>
+
+        <Field>
+          <div className="mb-1 flex items-center justify-between w-full">
+            <FieldLabel className="font-medium text-[10px]">Tone shift</FieldLabel>
+            <NumberField
+              className="w-auto"
+              value={familyHue.localValue}
+              min={-30}
+              max={30}
+              onValueChange={(value) => {
+                if (typeof value === 'number') {
+                  familyHue.update(value);
+                }
+              }}
+              onValueCommitted={() => familyHue.commitNow()}
+            >
+              <NumberFieldGroup className="h-5 w-[6rem] border-border/60 bg-transparent">
+                <NumberFieldDecrement className="px-1" />
+                <NumberFieldInput
+                  aria-label="Tone shift in degrees"
+                  className="font-mono text-[9px] text-foreground"
+                />
+                <NumberFieldIncrement className="px-1" />
+              </NumberFieldGroup>
+            </NumberField>
+          </div>
+          <Slider
+            value={familyHue.localValue}
+            min={-30}
+            max={30}
+            onValueChange={(value) => familyHue.update(value as number)}
+            onValueCommitted={() => familyHue.commitNow()}
+          />
+        </Field>
+
+        <Field>
+          <Slider
+            value={familySaturation.localValue}
+            min={0}
+            max={2}
+            step={0.1}
+            onValueChange={(value) => familySaturation.update(value as number)}
+            onValueCommitted={() => familySaturation.commitNow()}
+          >
+            <div className="mb-1 flex items-center justify-between gap-1">
+              <FieldLabel className="font-medium text-[10px]">Saturation</FieldLabel>
+              <SliderValue className="font-mono text-[10.5px] text-muted-foreground">
+                {(values) => <span>×{formatRangeValue(values[0] ?? 0, 2)}</span>}
+              </SliderValue>
+            </div>
+          </Slider>
+        </Field>
+
+        <Field>
+          <Slider
+            value={familyBrightness.localValue}
+            min={0.5}
+            max={1.5}
+            step={0.05}
+            onValueChange={(value) => familyBrightness.update(value as number)}
+            onValueCommitted={() => familyBrightness.commitNow()}
+          >
+            <div className="mb-1 flex items-center justify-between gap-1">
+              <FieldLabel className="font-medium text-[10px]">Brightness</FieldLabel>
+              <SliderValue className="font-mono text-[10.5px] text-muted-foreground">
+                {(values) => <span>×{formatRangeValue(values[0] ?? 0, 2)}</span>}
+              </SliderValue>
+            </div>
+          </Slider>
+        </Field>
+      </div>
+
+      <Button
+        type="button"
+        variant="default"
+        size="xs"
+        onClick={onReset}
+        className="mt-auto self-start"
+        data-animate="enter"
+      >
+        <IconRotate aria-hidden="true" />
+        Reset all
+      </Button>
+
+      <div className="flex items-center justify-between border-t border-border/50 pt-3 text-[10px] text-muted-foreground">
+        <span>&copy; gvastethecreator</span>
+        <a
+          href="https://github.com/gvastethecreator/color-studio"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="View source on GitHub"
+          className="inline-flex items-center gap-1 rounded-sm transition-colors hover:text-foreground"
+        >
+          <IconBrandGithub aria-hidden="true" className="size-3.5" />
+          Source
+        </a>
       </div>
     </aside>
   );

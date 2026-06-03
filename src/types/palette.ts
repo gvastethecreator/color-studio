@@ -20,19 +20,54 @@ export interface FamilyOverride {
   lightnessScale: number;
 }
 
+export type ColorFormatId =
+  | 'oklch'
+  | 'oklab'
+  | 'hex'
+  | 'hex-lower'
+  | 'rgb'
+  | 'rgba'
+  | 'hsl'
+  | 'hsla'
+  | 'hwb'
+  | 'lab'
+  | 'lch';
+
+export type AccentPaletteId =
+  | 'neutral'
+  | 'red'
+  | 'orange'
+  | 'amber'
+  | 'green'
+  | 'blue'
+  | 'violet'
+  | 'pink';
+
+export type ThemeMode = 'dark' | 'light';
+
 export interface GeneratorSettings {
   preset: string;
   hueShift: number;
   chromaScale: number;
   lightnessScale: number;
   overrides: Record<string, FamilyOverride>;
+  colorFormat: ColorFormatId;
+  theme: ThemeMode;
+  accentPalette: AccentPaletteId;
 }
 
 export interface PresetFamilyDefinition {
   id: string;
   name: string;
-  baseHue: number;
+  /** Hue anchor used when the preset is generated from OKLCH. */
+  baseHue?: number;
+  /** Multiplier applied to chroma when the preset is generated. */
   intrinsicChroma?: number;
+  /**
+   * Fixed color stops (HEX). When provided, the generator returns these
+   * exact values instead of computing a curve from `baseHue`.
+   */
+  steps?: Array<{ step: number; hex: string }>;
 }
 
 export interface PresetDefinition {
@@ -55,6 +90,9 @@ export const DEFAULT_SETTINGS: GeneratorSettings = {
   chromaScale: 1,
   lightnessScale: 1,
   overrides: {},
+  colorFormat: 'oklch',
+  theme: 'dark',
+  accentPalette: 'neutral',
 };
 
 export const createDefaultSettings = (): GeneratorSettings => ({

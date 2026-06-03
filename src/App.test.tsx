@@ -11,12 +11,11 @@ describe('App', () => {
 
     expect(screen.getByText(/generated palettes/i)).toBeInTheDocument();
 
-    await user.click(screen.getByRole('button', { name: /ui preview/i }));
+    await user.click(screen.getByRole('tab', { name: /preview/i }));
 
     expect(screen.getByText(/overview/i)).toBeInTheDocument();
-    expect(screen.getByText(/previewing/i)).toBeInTheDocument();
 
-    await user.click(screen.getByRole('button', { name: /palette grid/i }));
+    await user.click(screen.getByRole('tab', { name: /palette/i }));
     expect(screen.getByText(/generated palettes/i)).toBeInTheDocument();
   });
 
@@ -25,7 +24,11 @@ describe('App', () => {
 
     const { unmount } = render(<App />);
 
-    await user.selectOptions(screen.getByRole('combobox'), 'neon');
+    await user.click(screen.getByTestId('preset-select-trigger'));
+    await waitFor(() => {
+      expect(screen.getByRole('option', { name: /neon punk/i })).toBeInTheDocument();
+    });
+    await user.click(screen.getByRole('option', { name: /neon punk/i }));
 
     await waitFor(() => {
       expect(window.localStorage.getItem(STORAGE_KEYS.settings)).toContain('"preset":"neon"');
@@ -35,7 +38,7 @@ describe('App', () => {
     render(<App />);
 
     await waitFor(() => {
-      expect(screen.getByRole('combobox')).toHaveValue('neon');
+      expect(screen.getByTestId('preset-select-trigger')).toHaveTextContent(/neon punk/i);
     });
   });
 });

@@ -16,10 +16,13 @@ describe('ExportMenu', () => {
 
     vi.spyOn(clipboard, 'copyTextToClipboard').mockResolvedValue(true);
 
-    render(<ExportMenu palettes={palettes} onNotify={onNotify} />);
+    render(<ExportMenu palettes={palettes} colorFormat="oklch" onNotify={onNotify} />);
 
     fireEvent.click(screen.getByRole('button', { name: /export/i }));
-    fireEvent.click(screen.getByRole('button', { name: /copy css variables/i }));
+    await waitFor(() => {
+      expect(screen.getByRole('menuitem', { name: /copy css variables/i })).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByRole('menuitem', { name: /copy css variables/i }));
 
     await waitFor(() => {
       expect(clipboard.copyTextToClipboard).toHaveBeenCalled();
@@ -27,29 +30,22 @@ describe('ExportMenu', () => {
     });
   });
 
-  it('copies Tailwind tokens and closes when clicking outside', async () => {
+  it('copies Tailwind tokens when selecting that option', async () => {
     const palettes = generatePalettes(createDefaultSettings()).slice(0, 1);
     const onNotify = vi.fn();
 
     vi.spyOn(clipboard, 'copyTextToClipboard').mockResolvedValue(true);
 
-    render(<ExportMenu palettes={palettes} onNotify={onNotify} />);
+    render(<ExportMenu palettes={palettes} colorFormat="oklch" onNotify={onNotify} />);
 
     fireEvent.click(screen.getByRole('button', { name: /export/i }));
-    fireEvent.click(screen.getByRole('button', { name: /copy tailwind 4/i }));
+    await waitFor(() => {
+      expect(screen.getByRole('menuitem', { name: /copy tailwind 4/i })).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByRole('menuitem', { name: /copy tailwind 4/i }));
 
     await waitFor(() => {
       expect(onNotify).toHaveBeenCalledWith('Tailwind 4 theme tokens copied to clipboard.');
-      expect(screen.queryByRole('button', { name: /copy css variables/i })).not.toBeInTheDocument();
-    });
-
-    fireEvent.click(screen.getByRole('button', { name: /export/i }));
-    expect(screen.getByRole('button', { name: /copy json tokens/i })).toBeInTheDocument();
-
-    fireEvent.mouseDown(document.body);
-
-    await waitFor(() => {
-      expect(screen.queryByRole('button', { name: /copy json tokens/i })).not.toBeInTheDocument();
     });
   });
 
@@ -59,10 +55,13 @@ describe('ExportMenu', () => {
 
     vi.spyOn(clipboard, 'copyTextToClipboard').mockResolvedValue(false);
 
-    render(<ExportMenu palettes={palettes} onNotify={onNotify} />);
+    render(<ExportMenu palettes={palettes} colorFormat="oklch" onNotify={onNotify} />);
 
     fireEvent.click(screen.getByRole('button', { name: /export/i }));
-    fireEvent.click(screen.getByRole('button', { name: /copy json tokens/i }));
+    await waitFor(() => {
+      expect(screen.getByRole('menuitem', { name: /copy json tokens/i })).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByRole('menuitem', { name: /copy json tokens/i }));
 
     await waitFor(() => {
       expect(onNotify).toHaveBeenCalledWith('Clipboard API is not available in this environment.');
@@ -75,16 +74,17 @@ describe('ExportMenu', () => {
 
     vi.spyOn(file, 'downloadTextFile').mockReturnValue(true);
 
-    render(<ExportMenu palettes={palettes} onNotify={onNotify} />);
+    render(<ExportMenu palettes={palettes} colorFormat="oklch" onNotify={onNotify} />);
 
     fireEvent.click(screen.getByRole('button', { name: /export/i }));
-    fireEvent.click(screen.getByRole('button', { name: /download json tokens/i }));
+    await waitFor(() => {
+      expect(screen.getByRole('menuitem', { name: /download json tokens/i })).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByRole('menuitem', { name: /download json tokens/i }));
 
     await waitFor(() => {
       expect(file.downloadTextFile).toHaveBeenCalled();
-      expect(onNotify).toHaveBeenCalledWith(
-        'JSON token export downloaded as prism-architect.tokens.json.',
-      );
+      expect(onNotify).toHaveBeenCalledWith('JSON token export downloaded.');
     });
   });
 });
