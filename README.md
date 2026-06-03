@@ -44,5 +44,12 @@ bun run dev
 ---
 
 - For deep technical details, check the [docs](docs/README.md) folder.
+- For feature requests and suggestions, create an issue or submit a PR.
+- If you like this project, consider giving it a star.
 
-━━━━━━━━━━━━━━━━━━━━━━━
+
+<h4 align="right">Support further development:</h4>
+<p align="right">
+  <a href="#"><img src="https://shieldcn.dev/badge/%E2%9D%A4-sponsor%20this%20project-red.svg" alt="Sponsor this project" /></a>
+  <a href="#"><img src="https://shieldcn.dev/x/mention/gvastebb.svg?variant=branded" alt="Follow on X" /></a>
+</p>
