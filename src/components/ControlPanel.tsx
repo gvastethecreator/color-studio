@@ -10,7 +10,7 @@ import {
 } from '@tabler/icons-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Field, FieldDescription, FieldLabel } from '@/components/ui/field';
+import { Field, FieldLabel } from '@/components/ui/field';
 import {
   NumberField,
   NumberFieldDecrement,
@@ -39,6 +39,7 @@ import type {
 } from '@/types/palette';
 
 interface ControlPanelProps {
+  embedded?: boolean;
   settings: GeneratorSettings;
   setSettings: Dispatch<SetStateAction<GeneratorSettings>>;
   onReset: () => void;
@@ -47,8 +48,8 @@ interface ControlPanelProps {
   presetOptions?: PresetRegistry;
   customPresetCount?: number;
   onImportPreset?: (file: File) => Promise<void> | void;
-  accentPalette: AccentPaletteId;
-  onCycleAccent: () => void;
+  accentPalette?: AccentPaletteId;
+  onCycleAccent?: () => void;
 }
 
 type OverrideKey = keyof Pick<FamilyOverride, 'hueShift' | 'chromaScale' | 'lightnessScale'>;
@@ -98,7 +99,7 @@ function GlobalControlsSection({
           <div className="mb-3 flex items-center justify-between gap-1">
             <FieldLabel className="font-medium text-[10px]">Hue rotation</FieldLabel>
             <SliderValue className="font-mono text-[10.5px] text-muted-foreground">
-              {(values) => <span>{Math.round(values[0] ?? 0)}°</span>}
+              {(values) => <span>{Math.round(Number(values[0] ?? 0))}°</span>}
             </SliderValue>
           </div>
         </Slider>
@@ -119,7 +120,7 @@ function GlobalControlsSection({
           <div className="mb-3 flex items-center justify-between gap-1">
             <FieldLabel className="font-medium text-[10px]">Saturation</FieldLabel>
             <SliderValue className="font-mono text-[10.5px] text-muted-foreground">
-              {(values) => <span>×{formatRangeValue(values[0] ?? 0, 2)}</span>}
+              {(values) => <span>×{formatRangeValue(Number(values[0] ?? 0), 2)}</span>}
             </SliderValue>
           </div>
         </Slider>
@@ -140,7 +141,7 @@ function GlobalControlsSection({
           <div className="mb-3 flex items-center justify-between gap-1">
             <FieldLabel className="font-medium text-[10px]">Brightness</FieldLabel>
             <SliderValue className="font-mono text-[10.5px] text-muted-foreground">
-              {(values) => <span>×{formatRangeValue(values[0] ?? 0, 2)}</span>}
+              {(values) => <span>×{formatRangeValue(Number(values[0] ?? 0), 2)}</span>}
             </SliderValue>
           </div>
         </Slider>
@@ -243,7 +244,7 @@ function FamilyOverrideSection({
           <div className="mb-3 flex items-center justify-between gap-1">
             <FieldLabel className="font-medium text-[10px]">Saturation</FieldLabel>
             <SliderValue className="font-mono text-[10.5px] text-muted-foreground">
-              {(values) => <span>×{formatRangeValue(values[0] ?? 0, 2)}</span>}
+              {(values) => <span>×{formatRangeValue(Number(values[0] ?? 0), 2)}</span>}
             </SliderValue>
           </div>
         </Slider>
@@ -264,7 +265,7 @@ function FamilyOverrideSection({
           <div className="mb-3 flex items-center justify-between gap-1">
             <FieldLabel className="font-medium text-[10px]">Brightness</FieldLabel>
             <SliderValue className="font-mono text-[10.5px] text-muted-foreground">
-              {(values) => <span>×{formatRangeValue(values[0] ?? 0, 2)}</span>}
+              {(values) => <span>×{formatRangeValue(Number(values[0] ?? 0), 2)}</span>}
             </SliderValue>
           </div>
         </Slider>
@@ -292,6 +293,7 @@ function ControlPanelFooter() {
 }
 
 export default function ControlPanel({
+  embedded = false,
   settings,
   setSettings,
   onReset,
@@ -300,8 +302,8 @@ export default function ControlPanel({
   presetOptions = PRESETS,
   customPresetCount = 0,
   onImportPreset,
-  accentPalette,
-  onCycleAccent,
+  accentPalette = 'neutral',
+  onCycleAccent = () => undefined,
 }: ControlPanelProps) {
   const currentOverride = settings.overrides[activeFamilyId] ?? DEFAULT_OVERRIDE;
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -394,25 +396,32 @@ export default function ControlPanel({
     currentOverride.lightnessScale !== 1;
 
   return (
-    <aside className="flex w-full shrink-0 flex-col gap-4 overflow-y-auto border-b border-border bg-card/40 p-3 text-[11px] leading-tight md:h-dvh md:w-72 md:border-b-0 md:border-r relative">
-      <header className="flex items-center justify-between gap-2" data-animate="enter">
-        <div className="flex items-center gap-1.5">
-          <BrandLogo paletteId={accentPalette} onCycle={onCycleAccent} />
-          <h1 className="font-heading text-sm font-semibold tracking-tight">Color Studio</h1>
-        </div>
-        {customPresetCount > 0 && (
-          <Badge variant="secondary" size="sm">
-            <IconSparkles aria-hidden="true" />
-            {customPresetCount}
-          </Badge>
-        )}
-      </header>
+    <aside
+      className={
+        embedded
+          ? 'scale-inspector flex w-full shrink-0 flex-col gap-4 overflow-y-auto border-border bg-card/40 p-3 text-[11px] leading-tight'
+          : 'relative flex w-full shrink-0 flex-col gap-4 overflow-y-auto border-b border-border bg-card/40 p-3 text-[11px] leading-tight md:h-dvh md:w-72 md:border-r md:border-b-0'
+      }
+    >
+      {!embedded && (
+        <header className="flex items-center justify-between gap-2" data-animate="enter">
+          <div className="flex items-center gap-1.5">
+            <BrandLogo paletteId={accentPalette} onCycle={onCycleAccent} />
+            <h1 className="font-heading text-sm font-semibold tracking-tight">Color Studio</h1>
+          </div>
+          {customPresetCount > 0 && (
+            <Badge variant="secondary" size="sm">
+              <IconSparkles aria-hidden="true" />
+              {customPresetCount}
+            </Badge>
+          )}
+        </header>
+      )}
 
       <Field className="mt-2" data-animate="enter">
         <div className="flex items-center gap-1">
           <FieldLabel className="text-[10px]">Palette</FieldLabel>
           <Select<PresetOption>
-            items={presetOptionsList}
             value={currentPreset ?? presetOptionsList[0]}
             onValueChange={(next) => {
               if (next) {
@@ -495,7 +504,7 @@ export default function ControlPanel({
         Reset all
       </Button>
 
-      <ControlPanelFooter />
+      {!embedded && <ControlPanelFooter />}
     </aside>
   );
 }

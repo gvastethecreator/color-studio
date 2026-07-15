@@ -1,7 +1,7 @@
 {
   "name": "color-studio",
   "version": "0.2.0",
-  "description": "Color Studio: OKLCH palette generator with token export and live UI preview, built with Bun and Vite+.",
+  "description": "Local-first color workbench for harmony palettes, CSS gradients, OKLCH scales, contrast testing, mixing, and export.",
   "type": "module",
   "scripts": {
     "dev": "vp dev",

@@ -1,26 +1,20 @@
-import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
-import gsap from 'gsap';
-import { useGSAP } from '@gsap/react';
-import { IconLayoutGrid, IconDeviceDesktop, IconRotate } from '@tabler/icons-react';
-import ControlPanel from '@/components/ControlPanel';
-import ExportMenu from '@/components/ExportMenu';
-import PaletteGrid from '@/components/PaletteGrid';
-import PreviewPanel from '@/components/PreviewPanel';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { IconCircleCheck, IconSparkles } from '@tabler/icons-react';
+import { BrandLogo } from '@/components/BrandLogo';
 import { ThemeToggle } from '@/components/ThemeToggle';
-import { ViewModeSelector } from '@/components/ViewModeSelector';
-import type { PaletteViewMode } from '@/components/ViewModeSelector';
+import { ContrastTool } from '@/components/studio/ContrastTool';
+import { GradientEditor } from '@/components/studio/GradientEditor';
+import { PaletteComposer } from '@/components/studio/PaletteComposer';
+import { ScaleWorkspace } from '@/components/studio/ScaleWorkspace';
+import { StudioNavigation } from '@/components/studio/StudioNavigation';
 import { TooltipProvider } from '@/components/ui/tooltip';
-import { Tabs, TabsList, TabsTab } from '@/components/ui/tabs';
-import { Separator } from '@/components/ui/separator';
-import { Button } from '@/components/ui/button';
-import { ColorFormatSelect } from '@/components/ColorFormatSelect';
-import { PRESETS } from '@/data/presets';
-import { OFFICIAL_PRESETS } from '@/data/official-presets';
-import { generatePalettes, getSafeActiveFamily } from '@/lib/color';
-import { parseCustomPresetText } from '@/lib/custom-presets';
-import { getNextAccentPalette } from '@/lib/accent-palettes';
-import { useAccentTheme } from '@/hooks/use-accent-theme';
 import { toastManager } from '@/components/ui/toast';
+import { OFFICIAL_PRESETS } from '@/data/official-presets';
+import { PRESETS } from '@/data/presets';
+import { useAccentTheme } from '@/hooks/use-accent-theme';
+import { getNextAccentPalette } from '@/lib/accent-palettes';
+import { copyTextToClipboard } from '@/lib/clipboard';
+import { parseCustomPresetText } from '@/lib/custom-presets';
 import {
   ensureAvailablePreset,
   readStoredCustomPresets,
@@ -28,10 +22,9 @@ import {
   writeStoredCustomPresets,
   writeStoredSettings,
 } from '@/lib/storage';
-import { createDefaultSettings } from '@/types/palette';
+import { readStoredStudioState, writeStoredStudioState } from '@/lib/studio-storage';
 import type { GeneratorSettings, PresetRegistry, ThemeMode } from '@/types/palette';
-
-gsap.registerPlugin(useGSAP);
+import type { StudioState, StudioToolId } from '@/types/studio';
 
 const mergePresetRegistries = (customPresets: PresetRegistry): PresetRegistry => ({
   ...PRESETS,
@@ -40,119 +33,88 @@ const mergePresetRegistries = (customPresets: PresetRegistry): PresetRegistry =>
 });
 
 const notify = (message: string, type: 'success' | 'error' = 'success') => {
-  toastManager.add({
-    description: message,
-    type,
-  });
+  toastManager.add({ description: message, type });
 };
 
 const applyTheme = (theme: ThemeMode) => {
-  if (typeof document === 'undefined') {
-    return;
-  }
-
+  if (typeof document === 'undefined') return;
   const root = document.documentElement;
   root.classList.toggle('dark', theme === 'dark');
   root.style.colorScheme = theme;
   root.dataset.theme = theme;
+  document
+    .querySelector('meta[name="theme-color"]')
+    ?.setAttribute('content', theme === 'dark' ? '#12110F' : '#E9E5DC');
 };
 
-type ViewState = {
-  activeTab: 'palette' | 'preview';
-  paletteView: PaletteViewMode;
-  copySwatchId: string | null;
-};
-
-type ViewAction =
-  | { type: 'setActiveTab'; value: 'palette' | 'preview' }
-  | { type: 'setPaletteView'; value: PaletteViewMode }
-  | { type: 'copySwatch'; copyId: string }
-  | { type: 'clearCopySwatch' };
-
-const viewReducer = (state: ViewState, action: ViewAction): ViewState => {
-  switch (action.type) {
-    case 'setActiveTab':
-      return { ...state, activeTab: action.value };
-    case 'setPaletteView':
-      return { ...state, paletteView: action.value };
-    case 'copySwatch':
-      return { ...state, copySwatchId: action.copyId };
-    case 'clearCopySwatch':
-      return { ...state, copySwatchId: null };
-  }
+const TOOL_TITLES: Record<StudioToolId, string> = {
+  palette: 'Palette Composer',
+  gradient: 'Gradient Lab',
+  scale: 'Scale Lab',
+  contrast: 'Contrast + Mix',
 };
 
 export default function App() {
   const [customPresets, setCustomPresets] = useState<PresetRegistry>(readStoredCustomPresets);
-  const presetRegistry = useMemo(() => mergePresetRegistries(customPresets), [customPresets]);
   const [settings, setSettings] = useState<GeneratorSettings>(readStoredSettings);
-  const [view, dispatchView] = useReducer(viewReducer, {
-    activeTab: 'palette',
-    paletteView: 'rows',
-    copySwatchId: null,
-  });
-  const [selectedFamilyId, setSelectedFamilyId] = useState<string | null>(null);
-
-  const palettes = useMemo(
-    () => generatePalettes(settings, presetRegistry),
-    [presetRegistry, settings],
-  );
-
-  const prevPresetRegistryRef = useRef(presetRegistry);
-  if (presetRegistry !== prevPresetRegistryRef.current) {
-    prevPresetRegistryRef.current = presetRegistry;
-    const adjusted = ensureAvailablePreset(settings, presetRegistry);
-    if (adjusted !== settings) {
-      setSettings(adjusted);
-    }
-  }
-
-  if (palettes.length === 0) {
-    if (selectedFamilyId !== null) {
-      setSelectedFamilyId(null);
-    }
-  } else if (!selectedFamilyId || !palettes.some((palette) => palette.id === selectedFamilyId)) {
-    setSelectedFamilyId(palettes[0].id);
-  }
+  const [studio, setStudio] = useState<StudioState>(readStoredStudioState);
+  const presetRegistry = useMemo(() => mergePresetRegistries(customPresets), [customPresets]);
 
   useEffect(() => {
-    writeStoredSettings(settings);
-  }, [settings]);
+    setSettings((previous) => ensureAvailablePreset(previous, presetRegistry));
+  }, [presetRegistry]);
 
-  useEffect(() => {
-    writeStoredCustomPresets(customPresets);
-  }, [customPresets]);
-
-  useEffect(() => {
-    applyTheme(settings.theme);
-  }, [settings.theme]);
+  useEffect(() => writeStoredSettings(settings), [settings]);
+  useEffect(() => writeStoredCustomPresets(customPresets), [customPresets]);
+  useEffect(() => writeStoredStudioState(studio), [studio]);
+  useEffect(() => applyTheme(settings.theme), [settings.theme]);
 
   useAccentTheme(settings.accentPalette);
+
+  const setActiveTool = (activeTool: StudioToolId) =>
+    setStudio((previous) => ({ ...previous, activeTool }));
+
+  const handleThemeToggle = useCallback(() => {
+    setSettings((previous) => {
+      const theme: ThemeMode = previous.theme === 'dark' ? 'light' : 'dark';
+      window.setTimeout(() => notify(`${theme === 'dark' ? 'Dark' : 'Light'} theme enabled.`), 0);
+      return { ...previous, theme };
+    });
+  }, []);
+
+  const handleCycleAccent = useCallback(() => {
+    setSettings((previous) => {
+      const nextPalette = getNextAccentPalette(previous.accentPalette);
+      window.setTimeout(() => notify(`Studio accent: ${nextPalette.label}.`), 0);
+      return { ...previous, accentPalette: nextPalette.id };
+    });
+  }, []);
+
+  const handleCopy = useCallback(async (text: string, label: string) => {
+    const copied = await copyTextToClipboard(text);
+    notify(
+      copied
+        ? `${label} copied.`
+        : 'Clipboard is unavailable. Select the visible value and copy it manually.',
+      copied ? 'success' : 'error',
+    );
+  }, []);
 
   const handleImportPreset = async (file: File) => {
     try {
       const importedPresets = parseCustomPresetText(await file.text());
       const importedIds = Object.keys(importedPresets);
       const nextPresetId = importedIds[0];
-
-      setCustomPresets((previous) => ({
-        ...previous,
-        ...importedPresets,
-      }));
+      setCustomPresets((previous) => ({ ...previous, ...importedPresets }));
 
       if (nextPresetId) {
-        setSettings((previous) => ({
-          ...previous,
-          preset: nextPresetId,
-          overrides: {},
-        }));
-        setSelectedFamilyId(null);
-        dispatchView({ type: 'setActiveTab', value: 'palette' });
+        setSettings((previous) => ({ ...previous, preset: nextPresetId, overrides: {} }));
+        setActiveTool('scale');
       }
 
       notify(
         importedIds.length === 1
-          ? `Imported custom preset "${importedIds[0]}".`
+          ? `Imported custom preset “${importedIds[0]}”.`
           : `Imported ${importedIds.length} custom presets.`,
       );
     } catch (error) {
@@ -163,184 +125,82 @@ export default function App() {
     }
   };
 
-  const activeFamily = useMemo(
-    () => getSafeActiveFamily(palettes, selectedFamilyId),
-    [palettes, selectedFamilyId],
-  );
-
-  useEffect(() => {
-    if (!view.copySwatchId) {
-      return undefined;
-    }
-
-    const timer = window.setTimeout(() => dispatchView({ type: 'clearCopySwatch' }), 1400);
-    return () => window.clearTimeout(timer);
-  }, [view.copySwatchId]);
-
-  useGSAP(
-    () => {
-      if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
-        return undefined;
-      }
-
-      const media = gsap.matchMedia();
-
-      media.add('(prefers-reduced-motion: no-preference)', () => {
-        gsap.from('[data-animate="enter"]', {
-          opacity: 0,
-          y: 8,
-          duration: 0.3,
-          ease: 'power2.out',
-          stagger: 0.04,
-        });
-      });
-
-      return () => media.revert();
-    },
-    { dependencies: [view.activeTab] },
-  );
-
-  const handleColorFormatChange = (format: GeneratorSettings['colorFormat']) => {
-    setSettings((previous) => ({ ...previous, colorFormat: format }));
-  };
-
-  const handleThemeToggle = useCallback(() => {
-    setSettings((previous) => {
-      const nextTheme: ThemeMode = previous.theme === 'dark' ? 'light' : 'dark';
-      // Schedule the notification after this tick to avoid updating context during rendering/dispatching state updates
-      setTimeout(() => notify(`${nextTheme === 'dark' ? 'Dark' : 'Light'} theme enabled.`), 0);
-      return { ...previous, theme: nextTheme };
-    });
-  }, []);
-
-  const handleCycleAccent = useCallback(() => {
-    setSettings((previous) => {
-      const nextPalette = getNextAccentPalette(previous.accentPalette);
-      // Schedule the notification after this tick
-      setTimeout(() => notify(`Accent: ${nextPalette.label}.`), 0);
-      return { ...previous, accentPalette: nextPalette.id };
-    });
-  }, []);
-
-  const handleCopySwatch = (copyId: string) => {
-    dispatchView({ type: 'copySwatch', copyId });
-  };
-
-  if (!activeFamily) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-background text-foreground">
-        No families are available for the selected preset.
-      </div>
-    );
-  }
-
   return (
     <TooltipProvider delay={120}>
-      <div className="isolate flex h-dvh flex-col overflow-hidden bg-background text-foreground md:flex-row">
-        <ControlPanel
-          settings={settings}
-          setSettings={setSettings}
-          onReset={() => {
-            setSettings(createDefaultSettings());
-            notify('Settings reset to defaults.');
-          }}
-          activeFamilyId={activeFamily.id}
-          activeFamilyDisplayName={activeFamily.name}
-          presetOptions={presetRegistry}
-          customPresetCount={Object.keys(customPresets).length}
-          onImportPreset={handleImportPreset}
-          accentPalette={settings.accentPalette}
-          onCycleAccent={handleCycleAccent}
-        />
+      <div className="studio-shell">
+        <a className="studio-skip-link" href="#studio-workspace">
+          Skip to workspace
+        </a>
 
-        <main className="flex h-full min-h-0 flex-1 flex-col overflow-hidden">
-          <header className="flex h-12 shrink-0 items-center justify-between gap-2 border-b border-border bg-background/80 px-3 text-[12px] backdrop-blur-md sm:px-4">
-            <div className="flex items-center gap-1.5" data-animate="enter">
-              <Tabs
-                value={view.activeTab}
-                onValueChange={(value: string) =>
-                  dispatchView({
-                    type: 'setActiveTab',
-                    value: value === 'preview' ? 'preview' : 'palette',
-                  })
+        <header className="studio-global-header">
+          <div className="studio-brand-block">
+            <BrandLogo paletteId={settings.accentPalette} onCycle={handleCycleAccent} />
+            <div>
+              <h1>Color Studio</h1>
+              <span>Local color workbench</span>
+            </div>
+          </div>
+
+          <div className="studio-project-state" aria-label="Project status">
+            <IconCircleCheck aria-hidden="true" />
+            <span>
+              Untitled color study
+              <small>Changes saved locally</small>
+            </span>
+          </div>
+
+          <div className="studio-global-actions">
+            <span className="studio-current-tool">
+              <IconSparkles aria-hidden="true" />
+              {TOOL_TITLES[studio.activeTool]}
+            </span>
+            <ThemeToggle theme={settings.theme} onToggle={handleThemeToggle} />
+          </div>
+        </header>
+
+        <div className="studio-body">
+          <StudioNavigation activeTool={studio.activeTool} onChange={setActiveTool} />
+
+          <main id="studio-workspace" className="studio-workspace" tabIndex={-1}>
+            {studio.activeTool === 'palette' && (
+              <PaletteComposer
+                state={studio.palette}
+                onChange={(palette) => setStudio((previous) => ({ ...previous, palette }))}
+                onCopy={(text, label) => void handleCopy(text, label)}
+              />
+            )}
+            {studio.activeTool === 'gradient' && (
+              <GradientEditor
+                state={studio.gradient}
+                onChange={(gradient) => setStudio((previous) => ({ ...previous, gradient }))}
+                onCopy={(text, label) => void handleCopy(text, label)}
+              />
+            )}
+            {studio.activeTool === 'scale' && (
+              <ScaleWorkspace
+                settings={settings}
+                setSettings={setSettings}
+                presetRegistry={presetRegistry}
+                customPresetCount={Object.keys(customPresets).length}
+                onImportPreset={handleImportPreset}
+                accentPalette={settings.accentPalette}
+                onCycleAccent={handleCycleAccent}
+                onNotify={notify}
+              />
+            )}
+            {studio.activeTool === 'contrast' && (
+              <ContrastTool
+                contrast={studio.contrast}
+                mixer={studio.mixer}
+                onContrastChange={(contrast) =>
+                  setStudio((previous) => ({ ...previous, contrast }))
                 }
-                className="flex-1 justify-center"
-              >
-                <TabsList variant="default" className="mx-auto h-8">
-                  <TabsTab value="palette" className="h-7 text-[12px]">
-                    <IconLayoutGrid aria-hidden="true" />
-                    Palette
-                  </TabsTab>
-                  <TabsTab value="preview" className="h-7 text-[12px]">
-                    <IconDeviceDesktop aria-hidden="true" />
-                    Preview
-                  </TabsTab>
-                </TabsList>
-              </Tabs>
-            </div>
-
-            <div className="flex items-center gap-1" data-animate="enter">
-              <ViewModeSelector
-                value={view.paletteView}
-                onChange={(value) => dispatchView({ type: 'setPaletteView', value })}
+                onMixerChange={(mixer) => setStudio((previous) => ({ ...previous, mixer }))}
+                onCopy={(text, label) => void handleCopy(text, label)}
               />
-
-              <Separator orientation="vertical" className="mx-0.5 h-4" />
-
-              <ColorFormatSelect value={settings.colorFormat} onChange={handleColorFormatChange} />
-
-              <Separator orientation="vertical" className="mx-0.5 h-4" />
-
-              <ExportMenu
-                palettes={palettes}
-                colorFormat={settings.colorFormat}
-                onNotify={notify}
-              />
-
-              <Button
-                type="button"
-                size="icon-xs"
-                variant="ghost"
-                onClick={() => {
-                  setSettings(createDefaultSettings());
-                  notify('Settings reset to defaults.');
-                }}
-                aria-label="Reset all settings"
-                title="Reset all settings"
-              >
-                <IconRotate aria-hidden="true" />
-              </Button>
-
-              <ThemeToggle theme={settings.theme} onToggle={handleThemeToggle} />
-            </div>
-          </header>
-
-          {view.activeTab === 'palette' ? (
-            <div className="flex-1 min-h-0 flex flex-col">
-              <PaletteGrid
-                palettes={palettes}
-                colorFormat={settings.colorFormat}
-                onSelectFamily={setSelectedFamilyId}
-                selectedFamilyId={activeFamily.id}
-                onNotify={notify}
-                copiedSwatchId={view.copySwatchId}
-                onCopySwatch={handleCopySwatch}
-                viewMode={view.paletteView}
-              />
-            </div>
-          ) : (
-            <div className="flex-1 overflow-y-auto p-4 sm:p-6">
-              <div className="mx-auto flex h-full max-w-5xl flex-col gap-3" data-animate="enter">
-                <PreviewPanel activeFamily={activeFamily} />
-                <p className="text-center text-muted-foreground text-xs">
-                  Previewing{' '}
-                  <span className="font-semibold text-foreground">{activeFamily.name}</span> family.
-                  Return to the grid view to choose a different base.
-                </p>
-              </div>
-            </div>
-          )}
-        </main>
+            )}
+          </main>
+        </div>
       </div>
     </TooltipProvider>
   );
