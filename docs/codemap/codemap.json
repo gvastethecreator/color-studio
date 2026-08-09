@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-08-08T11:55:00Z",
-  "generated_from_commit": "59edf5f0c8f3c1caafea98c8f77b2862646f132b",
+  "generated_at": "2026-08-09T07:52:36Z",
+  "generated_from_commit": "228109a19c4fad98c83f25bffb08598c0c627039",
   "scope": ["."],
   "nodes": [
     {
@@ -85,7 +85,7 @@
       "role": "Owns the tracked files for the src module.",
       "type": "module",
       "boundary": "Src",
-      "entrypoints": ["src/App.tsx:mergePresetRegistries"],
+      "entrypoints": ["src/App.tsx:GradientEditor"],
       "tests": ["src/App.test.tsx"],
       "constraints": ["This baseline uses tracked source and explicit dependency references only."],
       "evidence": {
@@ -93,7 +93,7 @@
         "locations": [
           {
             "path": "src/App.tsx",
-            "symbol": "mergePresetRegistries"
+            "symbol": "GradientEditor"
           }
         ]
       }
@@ -347,19 +347,7 @@
           },
           {
             "path": "src/App.tsx",
-            "symbol": "@/components/studio/ContrastTool"
-          },
-          {
-            "path": "src/App.tsx",
-            "symbol": "@/components/studio/GradientEditor"
-          },
-          {
-            "path": "src/App.tsx",
             "symbol": "@/components/studio/PaletteComposer"
-          },
-          {
-            "path": "src/App.tsx",
-            "symbol": "@/components/studio/ScaleWorkspace"
           },
           {
             "path": "src/App.tsx",
@@ -368,6 +356,18 @@
           {
             "path": "src/App.tsx",
             "symbol": "@/components/ui/tooltip"
+          },
+          {
+            "path": "src/App.tsx",
+            "symbol": "@/components/ui/toast"
+          },
+          {
+            "path": "src/App.tsx",
+            "symbol": "@/components/studio/GradientEditor"
+          },
+          {
+            "path": "src/App.tsx",
+            "symbol": "@/components/studio/ScaleWorkspace"
           }
         ]
       }
@@ -705,15 +705,15 @@
         "locations": [
           {
             "path": "src/lib/clipboard.test.ts",
-            "symbol": "vitest"
+            "symbol": "vite-plus/test"
           },
           {
             "path": "src/lib/color-formats.test.ts",
-            "symbol": "vitest"
+            "symbol": "vite-plus/test"
           },
           {
             "path": "src/lib/file.test.ts",
-            "symbol": "vitest"
+            "symbol": "vite-plus/test"
           },
           {
             "path": "src/lib/utils.ts",

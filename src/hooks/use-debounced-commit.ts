@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState, useTransition } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 interface DebouncedCommitApi<T> {
   /** Local value that updates immediately during interaction. */

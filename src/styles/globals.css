@@ -830,6 +830,16 @@ textarea {
   outline: none;
 }
 
+.studio-tool-loading {
+  display: grid;
+  height: 100%;
+  min-height: 12rem;
+  place-items: center;
+  color: var(--studio-muted);
+  font-size: 0.78rem;
+  font-weight: 650;
+}
+
 .studio-tool-workspace {
   display: grid;
   height: 100%;

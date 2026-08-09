@@ -1,46 +1,52 @@
 # Dependencies
 
-## Runtime
+Last reviewed: 2026-08-09.
 
-- `react`: declarative rendering for the SPA. Required.
-- `react-dom`: DOM mounting and client runtime. Required.
-- `lucide-react`: lightweight icon set for controls and actions. Required.
-- `gsap`: entrance animations and smooth transitions. Required.
-- `@gsap/react`: safe GSAP integration with React. Required.
+pnpm 11.20.0 is the only package manager. Vite+ owns development, checks, tests, and builds. The matching Vite core and Vitest versions are pinned through the workspace catalog to prevent duplicate toolchain copies.
 
-## Development
+## Runtime responsibilities
 
-- `vite-plus`: unified CLI (`vp dev`, `vp check`, `vp test`, `vp build`).
-  Required.
-- `vite` (aliased to `@voidzero-dev/vite-plus-core`): Vite+ compatible core
-  with a Rolldown-based build. Required.
-- `vitest` (aliased to `@voidzero-dev/vite-plus-test`): test runtime aligned
-  with Vite+. Required.
-- `@vitest/coverage-istanbul`: Vitest coverage in `logs/coverage`. Required.
-- `@vitejs/plugin-react`: React transform with Fast Refresh. Required.
-- `typescript`: static typing and contract checks. Required.
-- `tailwindcss`: utility-first styling and design tokens. Required.
-- `@tailwindcss/vite`: modern Tailwind integration for Vite/Vite+. Required.
-- `jsdom`: DOM environment for component tests. Required.
-- `@testing-library/react`: behavior-focused render and assertions.
-  Required.
-- `@testing-library/jest-dom`: additional DOM matchers. Required.
-- `@testing-library/user-event`: realistic user interactions. Required.
-- `@types/node`: Node.js types for scripts and config. Required.
-- `@types/react`: React types. Required.
-- `@types/react-dom`: React DOM types. Required.
+- `react` and `react-dom`: application rendering.
+- `@base-ui/react`: accessible, unstyled controls and popups.
+- `@daypicker/react`: current DayPicker package used by the calendar wrapper.
+- `@fontsource-variable/inter`: local variable font assets.
+- `@tabler/icons-react`: icon components.
+- `gsap` and `@gsap/react`: scoped animation lifecycle.
+- `class-variance-authority`, `clsx`, and `tailwind-merge`: reusable class composition.
 
-## Removed dependencies
+## Development responsibilities
 
-- Tailwind via CDN in `index.html`.
-- Configuration and env variables tied to `GEMINI_API_KEY`.
-- Scaffolding leftover from a prior AI Studio template.
+- `vite-plus`, its aliased `vite` core, and `@vitejs/plugin-react`: dev server and production build.
+- `vitest`, `@vitest/coverage-istanbul`, `jsdom`, and Testing Library: behavior tests and coverage.
+- `typescript` and `@types/*`: static contracts.
+- `tailwindcss`, `@tailwindcss/vite`, and `tw-animate-css`: design tokens and styles.
 
-## Operational notes
+## 2026-08-09 upgrade review
 
-- The `vite` and `vitest` overrides pin the entire toolchain to Vite+ to
-  avoid drift between related packages.
-- `vp test --coverage` prints a non-blocking "mixed versions" warning
-  because the Vite+ test alias and the Istanbul coverage provider
-  publish separate versions. Tests and coverage still pass; the warning
-  is treated as a tooling nuance, not a functional failure.
+| Package | Before | Current | Important change or value |
+| --- | --- | --- | --- |
+| Vite+ / Vite core | 0.1.14 | 0.2.8 | Official migration moved config to the current catalog model, unified Vitest 4.1.10, and includes Windows task and security fixes. [Releases](https://github.com/voidzero-dev/vite-plus/releases) |
+| TypeScript | 5.9.3 | 7.0.2 | Native compiler generation; the project passes current type and lint gates. [Release notes](https://www.typescriptlang.org/docs/handbook/release-notes/) |
+| React / React DOM | 19.2.3 | 19.2.8 | Current 19.2 patch line with activity and rendering fixes. [React 19.2](https://react.dev/blog/2025/10/01/react-19-2) |
+| Base UI | 1.5.0 | 1.7.0 | Focus restoration, popup/store bundle reductions, fewer redundant renders, and popup positioning fixes. [Changelog](https://base-ui.com/react/overview/releases) |
+| DayPicker | `react-day-picker` 10.0.1 | `@daypicker/react` 10.0.1 | Migrated from the compatibility package name to the supported v10 package. [Migration guide](https://daypicker.dev/upgrading) |
+| GSAP | 3.13.0 | 3.15.0 | Current animation runtime; existing React cleanup contract remains valid. [Releases](https://github.com/greensock/GSAP/releases) |
+| Tabler Icons React | 3.44.0 | 3.46.0 | Current icon catalog and fixes. [Releases](https://github.com/tabler/tabler-icons/releases) |
+| Inter variable font | 5.2.8 | 5.3.0 | Current packaged font assets. [Changelog](https://github.com/fontsource/font-files/releases) |
+| Tailwind CSS / Vite plugin | 4.1.12 | 4.3.3 | Current CSS pipeline and Vite integration. [Tailwind 4.3](https://tailwindcss.com/blog/tailwindcss-v4-3) |
+| `@vitejs/plugin-react` | 5.0.0 | 6.0.5 | Current React transform integration for the Vite 8 line. [Releases](https://github.com/vitejs/vite-plugin-react/releases) |
+| Vitest / Istanbul coverage | mixed 0.1.14 and 4.1.1 | 4.1.10 | One aligned Vitest graph; the prior mixed-version warning is gone. [Vitest releases](https://github.com/vitest-dev/vitest/releases) |
+| jsdom | 26.1.0 | 30.0.1 | Major DOM conformance upgrade; 30.0.1 fixes computed styles with `calc()` and improves large range operations. [Releases](https://github.com/jsdom/jsdom/releases) |
+| jest-dom | 6.6.3 | 7.0.0 | Current matcher major; the Vitest setup import remains the supported public entry. [Releases](https://github.com/testing-library/jest-dom/releases) |
+| Testing Library React / user-event | 16.3.0 / 14.6.1 | 16.3.2 / 14.6.3 | Current behavior-test fixes. [React releases](https://github.com/testing-library/react-testing-library/releases), [user-event releases](https://github.com/testing-library/user-event/releases) |
+| Node / React type packages | Node 24.6, React 19.2.2 | Node 26.2, React 19.2.18 | Current platform and React declarations; TypeScript 7 compilation passes. [DefinitelyTyped releases](https://github.com/DefinitelyTyped/DefinitelyTyped/releases) |
+
+Unchanged direct packages were also checked against the registry. `pnpm outdated --format json` returns an empty object and `pnpm audit --json` reports zero vulnerabilities.
+
+## Operational rules
+
+- Use `pnpm install --frozen-lockfile` in CI and verification.
+- Update `vite-plus`, aliased `vite`, `vitest`, and coverage together.
+- Run the official `vp migrate` command when Vite+ changes its dependency model.
+- Review major migration guides before accepting lockfile changes.
+- Do not add Bun lockfiles or Bun-specific scripts; this project has no Bun runtime contract.

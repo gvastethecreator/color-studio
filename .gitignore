@@ -11,7 +11,11 @@ lerna-debug.log*
 node_modules/
 
 # Package manager
-.bun/
+.pnpm-store/
+
+# Tool caches
+.cache/
+.vite/
 
 # Environment
 .env
@@ -22,10 +26,16 @@ node_modules/
 dist/
 dist-ssr/
 *.tsbuildinfo
+*.bak
+*.tmp
+tmp/
+temp/
 
 # Coverage
 coverage/
 logs/coverage/
+test-results/
+playwright-report/
 
 # Editor directories and files
 .vscode/*

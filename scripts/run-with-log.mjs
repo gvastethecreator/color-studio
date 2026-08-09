@@ -26,11 +26,18 @@ let buffer = [
 
 process.stdout.write(`${buffer}\n`);
 
+const binaryDirectory = join(process.cwd(), 'node_modules', '.bin');
+const pathKey = Object.keys(process.env).find((key) => key.toLowerCase() === 'path') ?? 'PATH';
+const childEnvironment = {
+  ...process.env,
+  [pathKey]: `${binaryDirectory}${process.platform === 'win32' ? ';' : ':'}${process.env[pathKey] ?? ''}`,
+};
+
 const child = spawn(command, args, {
-  shell: true,
+  shell: false,
   cwd: process.cwd(),
-  env: process.env,
-  windowsHide: false,
+  env: childEnvironment,
+  windowsHide: true,
 });
 
 child.stdout?.on('data', (chunk) => {
@@ -46,6 +53,12 @@ child.stderr?.on('data', (chunk) => {
 });
 
 const exitCode = await new Promise((resolve) => {
+  child.on('error', (error) => {
+    const message = `Unable to start ${command}: ${error.message}\n`;
+    buffer += message;
+    process.stderr.write(message);
+    resolve(1);
+  });
   child.on('close', (code) => resolve(code ?? 1));
 });
 

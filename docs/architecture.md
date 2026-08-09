@@ -60,12 +60,14 @@ values without a backend.
    calculations and serialization remain testable without the DOM.
 7. `storage.ts` and `studio-storage.ts` write separate, compatible local keys;
    malformed or future-shaped studio payloads fall back to sanitized defaults.
+8. `App.tsx` keeps Palette Composer in the initial bundle and loads Gradient,
+   Scale, and Contrast tools on demand behind an accessible status fallback.
 
 ## Toolchain
 
 - Bundling and dev server: Vite+ (Vite 8 with Rolldown).
 - Lint and format: OXC (`oxlint`, `oxfmt`).
-- Testing: Vitest + Testing Library + Istanbul coverage in `logs/coverage`.
+- Testing: Vitest 4 + Testing Library + Istanbul coverage in `logs/coverage`.
 - Styling: local Tailwind 4 with CSS design tokens.
 - Animation: GSAP with `useGSAP` and automatic cleanup.
 - CI: GitHub Actions for `check`, `test`, and `build`.

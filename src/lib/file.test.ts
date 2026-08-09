@@ -1,5 +1,5 @@
 import { downloadTextFile } from '@/lib/file';
-import { vi } from 'vitest';
+import { vi } from 'vite-plus/test';
 
 describe('downloadTextFile', () => {
   it('creates a downloadable object url when browser APIs exist', () => {

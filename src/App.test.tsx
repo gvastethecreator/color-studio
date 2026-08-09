@@ -25,7 +25,7 @@ describe('App', () => {
     render(<App />);
 
     await user.click(screen.getByRole('button', { name: /^gradient/i }));
-    expect(screen.getByRole('heading', { name: /gradient lab/i })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: /gradient lab/i })).toBeInTheDocument();
     expect(screen.getAllByRole('button', { name: /select stop/i })).toHaveLength(3);
 
     await user.click(screen.getByRole('button', { name: /^add stop$/i }));
@@ -73,7 +73,7 @@ describe('App', () => {
     const { unmount } = render(<App />);
 
     await user.click(screen.getByRole('button', { name: /^scale/i }));
-    await user.click(screen.getByTestId('preset-select-trigger'));
+    await user.click(await screen.findByTestId('preset-select-trigger', {}, { timeout: 5_000 }));
     await waitFor(() => {
       expect(screen.getByRole('option', { name: /neon punk/i })).toBeInTheDocument();
     });
@@ -86,7 +86,9 @@ describe('App', () => {
     unmount();
     render(<App />);
     await user.click(screen.getByRole('button', { name: /^scale/i }));
-    expect(screen.getByTestId('preset-select-trigger')).toHaveTextContent(/neon punk/i);
+    expect(
+      await screen.findByTestId('preset-select-trigger', {}, { timeout: 5_000 }),
+    ).toHaveTextContent(/neon punk/i);
   });
 
   it('swaps a contrast pair without losing the exact colors', async () => {
@@ -94,7 +96,7 @@ describe('App', () => {
     render(<App />);
 
     await user.click(screen.getByRole('button', { name: /^contrast/i }));
-    const foreground = screen.getByLabelText(/^foreground$/i);
+    const foreground = await screen.findByLabelText(/^foreground$/i);
     const background = screen.getByLabelText(/^background$/i);
     const foregroundBefore = foreground.getAttribute('value');
     const backgroundBefore = background.getAttribute('value');

@@ -1,7 +1,8 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import * as clipboard from '@/lib/clipboard';
 import { generatePalettes } from '@/lib/color';
 import PaletteGrid from '@/components/PaletteGrid';
+import { TooltipProvider } from '@/components/ui/tooltip';
 import { createDefaultSettings } from '@/types/palette';
 
 describe('PaletteGrid', () => {
@@ -14,16 +15,18 @@ describe('PaletteGrid', () => {
     vi.spyOn(clipboard, 'copyTextToClipboard').mockResolvedValue(true);
 
     render(
-      <PaletteGrid
-        palettes={palettes}
-        colorFormat="oklch"
-        onSelectFamily={onSelectFamily}
-        selectedFamilyId={palettes[0]!.id}
-        onNotify={onNotify}
-        copiedSwatchId={null}
-        onCopySwatch={onCopySwatch}
-        viewMode="rows"
-      />,
+      <TooltipProvider delay={60_000}>
+        <PaletteGrid
+          palettes={palettes}
+          colorFormat="oklch"
+          onSelectFamily={onSelectFamily}
+          selectedFamilyId={palettes[0]!.id}
+          onNotify={onNotify}
+          copiedSwatchId={null}
+          onCopySwatch={onCopySwatch}
+          viewMode="rows"
+        />
+      </TooltipProvider>,
     );
 
     fireEvent.click(screen.getByRole('button', { name: /select flamingo family/i }));
@@ -45,23 +48,25 @@ describe('PaletteGrid', () => {
     const onCopySwatch = vi.fn();
 
     render(
-      <PaletteGrid
-        palettes={palettes}
-        colorFormat="oklch"
-        onSelectFamily={onSelectFamily}
-        selectedFamilyId={palettes[0]!.id}
-        onNotify={onNotify}
-        copiedSwatchId={null}
-        onCopySwatch={onCopySwatch}
-        viewMode="rows"
-      />,
+      <TooltipProvider delay={60_000}>
+        <PaletteGrid
+          palettes={palettes}
+          colorFormat="oklch"
+          onSelectFamily={onSelectFamily}
+          selectedFamilyId={palettes[0]!.id}
+          onNotify={onNotify}
+          copiedSwatchId={null}
+          onCopySwatch={onCopySwatch}
+          viewMode="rows"
+        />
+      </TooltipProvider>,
     );
 
     const firstSwatch = screen.getByRole('button', {
       name: /copy flamingo step 1/i,
     });
 
-    firstSwatch.focus();
+    act(() => firstSwatch.focus());
     fireEvent.keyDown(firstSwatch, { key: 'ArrowRight' });
 
     await waitFor(() => {

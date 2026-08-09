@@ -1,11 +1,8 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import { IconCircleCheck, IconSparkles } from '@tabler/icons-react';
 import { BrandLogo } from '@/components/BrandLogo';
 import { ThemeToggle } from '@/components/ThemeToggle';
-import { ContrastTool } from '@/components/studio/ContrastTool';
-import { GradientEditor } from '@/components/studio/GradientEditor';
 import { PaletteComposer } from '@/components/studio/PaletteComposer';
-import { ScaleWorkspace } from '@/components/studio/ScaleWorkspace';
 import { StudioNavigation } from '@/components/studio/StudioNavigation';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { toastManager } from '@/components/ui/toast';
@@ -25,6 +22,22 @@ import {
 import { readStoredStudioState, writeStoredStudioState } from '@/lib/studio-storage';
 import type { GeneratorSettings, PresetRegistry, ThemeMode } from '@/types/palette';
 import type { StudioState, StudioToolId } from '@/types/studio';
+
+const GradientEditor = lazy(() =>
+  import('@/components/studio/GradientEditor').then(({ GradientEditor }) => ({
+    default: GradientEditor,
+  })),
+);
+const ScaleWorkspace = lazy(() =>
+  import('@/components/studio/ScaleWorkspace').then(({ ScaleWorkspace }) => ({
+    default: ScaleWorkspace,
+  })),
+);
+const ContrastTool = lazy(() =>
+  import('@/components/studio/ContrastTool').then(({ ContrastTool }) => ({
+    default: ContrastTool,
+  })),
+);
 
 const mergePresetRegistries = (customPresets: PresetRegistry): PresetRegistry => ({
   ...PRESETS,
@@ -162,43 +175,51 @@ export default function App() {
           <StudioNavigation activeTool={studio.activeTool} onChange={setActiveTool} />
 
           <main id="studio-workspace" className="studio-workspace" tabIndex={-1}>
-            {studio.activeTool === 'palette' && (
-              <PaletteComposer
-                state={studio.palette}
-                onChange={(palette) => setStudio((previous) => ({ ...previous, palette }))}
-                onCopy={(text, label) => void handleCopy(text, label)}
-              />
-            )}
-            {studio.activeTool === 'gradient' && (
-              <GradientEditor
-                state={studio.gradient}
-                onChange={(gradient) => setStudio((previous) => ({ ...previous, gradient }))}
-                onCopy={(text, label) => void handleCopy(text, label)}
-              />
-            )}
-            {studio.activeTool === 'scale' && (
-              <ScaleWorkspace
-                settings={settings}
-                setSettings={setSettings}
-                presetRegistry={presetRegistry}
-                customPresetCount={Object.keys(customPresets).length}
-                onImportPreset={handleImportPreset}
-                accentPalette={settings.accentPalette}
-                onCycleAccent={handleCycleAccent}
-                onNotify={notify}
-              />
-            )}
-            {studio.activeTool === 'contrast' && (
-              <ContrastTool
-                contrast={studio.contrast}
-                mixer={studio.mixer}
-                onContrastChange={(contrast) =>
-                  setStudio((previous) => ({ ...previous, contrast }))
-                }
-                onMixerChange={(mixer) => setStudio((previous) => ({ ...previous, mixer }))}
-                onCopy={(text, label) => void handleCopy(text, label)}
-              />
-            )}
+            <Suspense
+              fallback={
+                <div className="studio-tool-loading" role="status">
+                  Loading {TOOL_TITLES[studio.activeTool]}…
+                </div>
+              }
+            >
+              {studio.activeTool === 'palette' && (
+                <PaletteComposer
+                  state={studio.palette}
+                  onChange={(palette) => setStudio((previous) => ({ ...previous, palette }))}
+                  onCopy={(text, label) => void handleCopy(text, label)}
+                />
+              )}
+              {studio.activeTool === 'gradient' && (
+                <GradientEditor
+                  state={studio.gradient}
+                  onChange={(gradient) => setStudio((previous) => ({ ...previous, gradient }))}
+                  onCopy={(text, label) => void handleCopy(text, label)}
+                />
+              )}
+              {studio.activeTool === 'scale' && (
+                <ScaleWorkspace
+                  settings={settings}
+                  setSettings={setSettings}
+                  presetRegistry={presetRegistry}
+                  customPresetCount={Object.keys(customPresets).length}
+                  onImportPreset={handleImportPreset}
+                  accentPalette={settings.accentPalette}
+                  onCycleAccent={handleCycleAccent}
+                  onNotify={notify}
+                />
+              )}
+              {studio.activeTool === 'contrast' && (
+                <ContrastTool
+                  contrast={studio.contrast}
+                  mixer={studio.mixer}
+                  onContrastChange={(contrast) =>
+                    setStudio((previous) => ({ ...previous, contrast }))
+                  }
+                  onMixerChange={(mixer) => setStudio((previous) => ({ ...previous, mixer }))}
+                  onCopy={(text, label) => void handleCopy(text, label)}
+                />
+              )}
+            </Suspense>
           </main>
         </div>
       </div>

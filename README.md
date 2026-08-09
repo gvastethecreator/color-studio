@@ -1,55 +1,71 @@
-# Color Studio 
+# Color Studio
 
-> <img src="docs/color.png" align="right"/>
-
-
+> <img src="docs/color.png" align="right" width="160" alt="Color Studio preview" />
 
 [![pnpm](https://img.shields.io/badge/pnpm-11.20-F69220?logo=pnpm)](https://pnpm.io/)
 [![TypeScript](https://www.shieldcn.dev/badge/TypeScript-3178C6.svg?logo=typescript&variant=primary&size=xs)](https://www.typescriptlang.org)
-[![Vite](https://www.shieldcn.dev/badge/Vite-646CFF.svg?logo=vite&variant=primary&size=xs)](https://vitejs.dev)
+[![Vite+](https://img.shields.io/badge/Vite%2B-0.2.8-646CFF)](https://viteplus.dev/)
 [![React](https://www.shieldcn.dev/badge/React-61DAFB.svg?logo=react&variant=primary&size=xs)](https://react.dev)
 [![License](https://www.shieldcn.dev/github/license/gvastethecreator/color-studio.svg?variant=secondary&size=xs)](LICENSE)
 
-*Generate, fine-tune, and export OKLCH color scales with a live dashboard preview.*
+Local-first workbench for harmony palettes, CSS gradients, OKLCH scales, WCAG contrast, color mixing, and production-ready exports.
 
+Color Studio keeps project data in the browser. It has no backend and sends no palette data to a remote service.
 
-🟥 **Generate** perceptually uniform color scales using built-in presets.
+## Tools
 
-🟧 **Shift** hue, scale chroma, and scale lightness globally or per-family.
+- **Palette Composer:** build deterministic five- or six-color harmonies.
+- **Gradient Lab:** edit linear, radial, and conic gradients with ordered stops.
+- **Scale Lab:** tune OKLCH token scales, import presets, and preview components.
+- **Contrast + Mix:** check WCAG contrast and mix exact color endpoints.
+- **Export:** copy or download CSS variables, Tailwind 4 theme tokens, and JSON.
 
-🟨 **Visualize** active color family on a variety of components.
+## Requirements
 
-🟩 **Import** custom preset collections from JSON and save settings.
+- Node.js 20.19 or newer
+- pnpm 11.20.0
 
-🟦 **Cycle** application theme's accent color dynamically to preview UI using different palettes.
-
-🟪 **View** swatches in multiple layouts.
-
-🟫 **Export** generated color scales to CSS Custom Properties, Tailwind 4 `@theme` syntax, or raw JSON.
-
-## Getting Started
-
-Make sure you have Node.js and [pnpm](https://pnpm.io/) installed.
+## Start
 
 ```bash
-# Install dependencies
-pnpm install
-# Run the development server
+pnpm install --frozen-lockfile
 pnpm run dev
 ```
 
+Open `http://localhost:3000`.
 
-> The dev server will run on `http://localhost:3000`.
----
+## Common commands
 
-- For deep technical details, check the [docs](docs/README.md) folder.
-- For feature requests and suggestions, create an issue or submit a PR.
-- If you like this project, consider giving it a star.
----
+| Command | Purpose |
+| --- | --- |
+| `pnpm run dev` | Start the development server. |
+| `pnpm run check` | Check formatting, lint, and types. |
+| `pnpm run test` | Run tests with coverage. |
+| `pnpm run build` | Build the production app. |
+| `pnpm run preview` | Preview the production build. |
+| `pnpm run clean` | Remove generated build and coverage output. |
 
-<h4 align="right">Support the further development of this tool</h4>
-<p align="right">
-  <a href="https://github.com/sponsors/gvastethecreator/"><img src="https://shieldcn.dev/badge/%E2%9D%A4-sponsor%20this%20project-red.svg?animate=pulse" alt="Sponsor this project" /></a>
-  <a href="https://x.com/gvastebb"><img src="https://shieldcn.dev/x/mention/gvastebb.svg?variant=branded" alt="Follow on X" /></a>
-  
-</p>
+VS Code users can run the same commands from the short emoji tasks in `.vscode/tasks.json`.
+
+## Documentation
+
+- [Documentation index](docs/README.md)
+- [Architecture](docs/architecture.md)
+- [Dependencies and upgrade notes](docs/dependencies.md)
+- [Maintenance reviews](docs/reviews/README.md)
+- [Technical debt](docs/TECHNICAL_DEBT.md)
+
+## Quality gate
+
+Before opening a pull request, run:
+
+```bash
+pnpm install --frozen-lockfile
+pnpm run check
+pnpm run test
+pnpm run build
+```
+
+## License and support
+
+See [LICENSE](LICENSE). You can also [sponsor the project](https://github.com/sponsors/gvastethecreator/) or [follow the author on X](https://x.com/gvastebb).

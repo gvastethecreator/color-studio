@@ -10,6 +10,8 @@ This directory holds the project's technical and governance documentation.
 - [WORKLOG.md](WORKLOG.md): change log for the recent modernization pass.
 - [TECHNICAL_DEBT.md](TECHNICAL_DEBT.md): known gaps and recommended next
   steps.
+- [reviews/README.md](reviews/README.md): maintenance, architecture,
+  performance, UX, and quality evidence.
 
 ## Convention
 
