@@ -1,0 +1,847 @@
+{
+  "generated_at": "2026-08-08T11:55:00Z",
+  "generated_from_commit": "59edf5f0c8f3c1caafea98c8f77b2862646f132b",
+  "scope": ["."],
+  "nodes": [
+    {
+      "id": "external-dependencies",
+      "path": "src/App.tsx",
+      "role": "Represents external packages referenced by tracked source files.",
+      "type": "external",
+      "boundary": "External",
+      "entrypoints": ["src/App.tsx:react"],
+      "tests": [],
+      "constraints": ["Only dependencies with literal tracked-source references appear here."],
+      "evidence": {
+        "status": "verified",
+        "locations": [
+          {
+            "path": "src/App.tsx",
+            "symbol": "react"
+          }
+        ]
+      }
+    },
+    {
+      "id": "index",
+      "path": "index.html",
+      "role": "Owns the tracked files for the index module.",
+      "type": "module",
+      "boundary": "Index",
+      "entrypoints": ["index.html:Color Studio"],
+      "tests": [],
+      "constraints": ["This baseline uses tracked source and explicit dependency references only."],
+      "evidence": {
+        "status": "verified",
+        "locations": [
+          {
+            "path": "index.html",
+            "symbol": "Color Studio"
+          }
+        ]
+      }
+    },
+    {
+      "id": "repository",
+      "path": "README.md",
+      "role": "Owns the tracked files for the repository module.",
+      "type": "module",
+      "boundary": "Repository",
+      "entrypoints": ["README.md:Color Studio"],
+      "tests": [],
+      "constraints": ["This baseline uses tracked source and explicit dependency references only."],
+      "evidence": {
+        "status": "verified",
+        "locations": [
+          {
+            "path": "README.md",
+            "symbol": "Color Studio"
+          }
+        ]
+      }
+    },
+    {
+      "id": "scripts",
+      "path": "scripts",
+      "role": "Owns the tracked files for the scripts module.",
+      "type": "service",
+      "boundary": "Scripts",
+      "entrypoints": ["scripts/clean-generated.mjs:rootDir"],
+      "tests": [],
+      "constraints": ["This baseline uses tracked source and explicit dependency references only."],
+      "evidence": {
+        "status": "verified",
+        "locations": [
+          {
+            "path": "scripts/clean-generated.mjs",
+            "symbol": "rootDir"
+          }
+        ]
+      }
+    },
+    {
+      "id": "src",
+      "path": "src",
+      "role": "Owns the tracked files for the src module.",
+      "type": "module",
+      "boundary": "Src",
+      "entrypoints": ["src/App.tsx:mergePresetRegistries"],
+      "tests": ["src/App.test.tsx"],
+      "constraints": ["This baseline uses tracked source and explicit dependency references only."],
+      "evidence": {
+        "status": "verified",
+        "locations": [
+          {
+            "path": "src/App.tsx",
+            "symbol": "mergePresetRegistries"
+          }
+        ]
+      }
+    },
+    {
+      "id": "src-components",
+      "path": "src/components",
+      "role": "Owns the tracked files for the src / components module.",
+      "type": "interface",
+      "boundary": "Src",
+      "entrypoints": ["src/components/BrandLogo.css:.brand-logo {"],
+      "tests": [
+        "src/components/ControlPanel.test.tsx",
+        "src/components/ExportMenu.test.tsx",
+        "src/components/PaletteGrid.test.tsx",
+        "src/components/PreviewPanel.test.tsx"
+      ],
+      "constraints": ["This baseline uses tracked source and explicit dependency references only."],
+      "evidence": {
+        "status": "verified",
+        "locations": [
+          {
+            "path": "src/components/BrandLogo.css",
+            "symbol": ".brand-logo {"
+          }
+        ]
+      }
+    },
+    {
+      "id": "src-data",
+      "path": "src/data",
+      "role": "Owns the tracked files for the src / data module.",
+      "type": "module",
+      "boundary": "Src",
+      "entrypoints": ["src/data/official-presets.ts:swatch"],
+      "tests": ["src/lib/color.test.ts"],
+      "constraints": ["This baseline uses tracked source and explicit dependency references only."],
+      "evidence": {
+        "status": "verified",
+        "locations": [
+          {
+            "path": "src/data/official-presets.ts",
+            "symbol": "swatch"
+          }
+        ]
+      }
+    },
+    {
+      "id": "src-hooks",
+      "path": "src/hooks",
+      "role": "Owns the tracked files for the src / hooks module.",
+      "type": "module",
+      "boundary": "Src",
+      "entrypoints": ["src/hooks/use-accent-theme.ts:useAccentTheme"],
+      "tests": [],
+      "constraints": ["This baseline uses tracked source and explicit dependency references only."],
+      "evidence": {
+        "status": "verified",
+        "locations": [
+          {
+            "path": "src/hooks/use-accent-theme.ts",
+            "symbol": "useAccentTheme"
+          }
+        ]
+      }
+    },
+    {
+      "id": "src-lib",
+      "path": "src/lib",
+      "role": "Owns the tracked files for the src / lib module.",
+      "type": "module",
+      "boundary": "Src",
+      "entrypoints": ["src/lib/accent-palettes.ts:AccentPaletteId"],
+      "tests": [
+        "src/App.test.tsx",
+        "src/components/ExportMenu.test.tsx",
+        "src/components/PaletteGrid.test.tsx",
+        "src/components/PreviewPanel.test.tsx",
+        "src/lib/accessibility.test.ts"
+      ],
+      "constraints": ["This baseline uses tracked source and explicit dependency references only."],
+      "evidence": {
+        "status": "verified",
+        "locations": [
+          {
+            "path": "src/lib/accent-palettes.ts",
+            "symbol": "AccentPaletteId"
+          }
+        ]
+      }
+    },
+    {
+      "id": "src-styles",
+      "path": "src/styles",
+      "role": "Owns the tracked files for the src / styles module.",
+      "type": "module",
+      "boundary": "Src",
+      "entrypoints": ["src/styles/globals.css:@import 'tailwindcss';"],
+      "tests": [],
+      "constraints": ["This baseline uses tracked source and explicit dependency references only."],
+      "evidence": {
+        "status": "verified",
+        "locations": [
+          {
+            "path": "src/styles/globals.css",
+            "symbol": "@import 'tailwindcss';"
+          }
+        ]
+      }
+    },
+    {
+      "id": "src-types",
+      "path": "src/types",
+      "role": "Owns the tracked files for the src / types module.",
+      "type": "module",
+      "boundary": "Src",
+      "entrypoints": ["src/types/palette.ts:ColorStep"],
+      "tests": [
+        "src/components/ControlPanel.test.tsx",
+        "src/components/ExportMenu.test.tsx",
+        "src/components/PaletteGrid.test.tsx",
+        "src/components/PreviewPanel.test.tsx",
+        "src/lib/color.test.ts"
+      ],
+      "constraints": ["This baseline uses tracked source and explicit dependency references only."],
+      "evidence": {
+        "status": "verified",
+        "locations": [
+          {
+            "path": "src/types/palette.ts",
+            "symbol": "ColorStep"
+          }
+        ]
+      }
+    },
+    {
+      "id": "vite-config",
+      "path": "vite.config.ts",
+      "role": "Owns the tracked files for the vite.config module.",
+      "type": "module",
+      "boundary": "Vite.Config",
+      "entrypoints": ["vite.config.ts:rootDir"],
+      "tests": [],
+      "constraints": ["This baseline uses tracked source and explicit dependency references only."],
+      "evidence": {
+        "status": "verified",
+        "locations": [
+          {
+            "path": "vite.config.ts",
+            "symbol": "rootDir"
+          }
+        ]
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "index",
+      "to": "src",
+      "type": "imports",
+      "evidence": {
+        "status": "verified",
+        "locations": [
+          {
+            "path": "index.html",
+            "symbol": "/src/main.tsx"
+          }
+        ]
+      }
+    },
+    {
+      "from": "repository",
+      "to": "scripts",
+      "type": "calls",
+      "evidence": {
+        "status": "verified",
+        "locations": [
+          {
+            "path": "package.json",
+            "symbol": "scripts/run-with-log.mjs"
+          },
+          {
+            "path": "package.json",
+            "symbol": "scripts/clean-generated.mjs"
+          }
+        ]
+      }
+    },
+    {
+      "from": "repository",
+      "to": "src-lib",
+      "type": "reads",
+      "evidence": {
+        "status": "verified",
+        "locations": [
+          {
+            "path": "SECURITY.md",
+            "symbol": "src/lib/custom-presets.ts"
+          }
+        ]
+      }
+    },
+    {
+      "from": "src",
+      "to": "external-dependencies",
+      "type": "imports",
+      "evidence": {
+        "status": "verified",
+        "locations": [
+          {
+            "path": "src/App.test.tsx",
+            "symbol": "@testing-library/react"
+          },
+          {
+            "path": "src/App.test.tsx",
+            "symbol": "@testing-library/user-event"
+          },
+          {
+            "path": "src/App.tsx",
+            "symbol": "react"
+          },
+          {
+            "path": "src/App.tsx",
+            "symbol": "@tabler/icons-react"
+          },
+          {
+            "path": "src/main.tsx",
+            "symbol": "react"
+          },
+          {
+            "path": "src/main.tsx",
+            "symbol": "react-dom/client"
+          }
+        ]
+      }
+    },
+    {
+      "from": "src",
+      "to": "src-components",
+      "type": "imports",
+      "evidence": {
+        "status": "verified",
+        "locations": [
+          {
+            "path": "src/App.tsx",
+            "symbol": "@/components/BrandLogo"
+          },
+          {
+            "path": "src/App.tsx",
+            "symbol": "@/components/ThemeToggle"
+          },
+          {
+            "path": "src/App.tsx",
+            "symbol": "@/components/studio/ContrastTool"
+          },
+          {
+            "path": "src/App.tsx",
+            "symbol": "@/components/studio/GradientEditor"
+          },
+          {
+            "path": "src/App.tsx",
+            "symbol": "@/components/studio/PaletteComposer"
+          },
+          {
+            "path": "src/App.tsx",
+            "symbol": "@/components/studio/ScaleWorkspace"
+          },
+          {
+            "path": "src/App.tsx",
+            "symbol": "@/components/studio/StudioNavigation"
+          },
+          {
+            "path": "src/App.tsx",
+            "symbol": "@/components/ui/tooltip"
+          }
+        ]
+      }
+    },
+    {
+      "from": "src",
+      "to": "src-data",
+      "type": "imports",
+      "evidence": {
+        "status": "verified",
+        "locations": [
+          {
+            "path": "src/App.tsx",
+            "symbol": "@/data/official-presets"
+          },
+          {
+            "path": "src/App.tsx",
+            "symbol": "@/data/presets"
+          }
+        ]
+      }
+    },
+    {
+      "from": "src",
+      "to": "src-hooks",
+      "type": "imports",
+      "evidence": {
+        "status": "verified",
+        "locations": [
+          {
+            "path": "src/App.tsx",
+            "symbol": "@/hooks/use-accent-theme"
+          }
+        ]
+      }
+    },
+    {
+      "from": "src",
+      "to": "src-lib",
+      "type": "imports",
+      "evidence": {
+        "status": "verified",
+        "locations": [
+          {
+            "path": "src/App.test.tsx",
+            "symbol": "@/lib/storage"
+          },
+          {
+            "path": "src/App.test.tsx",
+            "symbol": "@/lib/studio-storage"
+          },
+          {
+            "path": "src/App.tsx",
+            "symbol": "@/lib/accent-palettes"
+          },
+          {
+            "path": "src/App.tsx",
+            "symbol": "@/lib/clipboard"
+          },
+          {
+            "path": "src/App.tsx",
+            "symbol": "@/lib/custom-presets"
+          },
+          {
+            "path": "src/App.tsx",
+            "symbol": "@/lib/storage"
+          },
+          {
+            "path": "src/App.tsx",
+            "symbol": "@/lib/studio-storage"
+          }
+        ]
+      }
+    },
+    {
+      "from": "src",
+      "to": "src-styles",
+      "type": "imports",
+      "evidence": {
+        "status": "verified",
+        "locations": [
+          {
+            "path": "src/main.tsx",
+            "symbol": "@/styles/globals.css"
+          }
+        ]
+      }
+    },
+    {
+      "from": "src",
+      "to": "src-types",
+      "type": "imports",
+      "evidence": {
+        "status": "verified",
+        "locations": [
+          {
+            "path": "src/App.tsx",
+            "symbol": "@/types/palette"
+          },
+          {
+            "path": "src/App.tsx",
+            "symbol": "@/types/studio"
+          }
+        ]
+      }
+    },
+    {
+      "from": "src-components",
+      "to": "external-dependencies",
+      "type": "imports",
+      "evidence": {
+        "status": "verified",
+        "locations": [
+          {
+            "path": "src/components/BrandLogo.tsx",
+            "symbol": "react"
+          },
+          {
+            "path": "src/components/BrandLogo.tsx",
+            "symbol": "@tabler/icons-react"
+          },
+          {
+            "path": "src/components/ColorFormatSelect.tsx",
+            "symbol": "react"
+          },
+          {
+            "path": "src/components/ControlPanel.test.tsx",
+            "symbol": "react"
+          },
+          {
+            "path": "src/components/ControlPanel.test.tsx",
+            "symbol": "@testing-library/user-event"
+          },
+          {
+            "path": "src/components/ControlPanel.test.tsx",
+            "symbol": "@testing-library/react"
+          },
+          {
+            "path": "src/components/ControlPanel.tsx",
+            "symbol": "react"
+          },
+          {
+            "path": "src/components/ControlPanel.tsx",
+            "symbol": "@tabler/icons-react"
+          }
+        ]
+      }
+    },
+    {
+      "from": "src-components",
+      "to": "src-data",
+      "type": "imports",
+      "evidence": {
+        "status": "verified",
+        "locations": [
+          {
+            "path": "src/components/ControlPanel.tsx",
+            "symbol": "@/data/presets"
+          }
+        ]
+      }
+    },
+    {
+      "from": "src-components",
+      "to": "src-hooks",
+      "type": "imports",
+      "evidence": {
+        "status": "verified",
+        "locations": [
+          {
+            "path": "src/components/ControlPanel.tsx",
+            "symbol": "@/hooks/use-debounced-commit"
+          }
+        ]
+      }
+    },
+    {
+      "from": "src-components",
+      "to": "src-lib",
+      "type": "imports",
+      "evidence": {
+        "status": "verified",
+        "locations": [
+          {
+            "path": "src/components/BrandLogo.tsx",
+            "symbol": "@/lib/utils"
+          },
+          {
+            "path": "src/components/ColorFormatSelect.tsx",
+            "symbol": "@/lib/color-formats"
+          },
+          {
+            "path": "src/components/ExportMenu.test.tsx",
+            "symbol": "@/lib/clipboard"
+          },
+          {
+            "path": "src/components/ExportMenu.test.tsx",
+            "symbol": "@/lib/file"
+          },
+          {
+            "path": "src/components/ExportMenu.test.tsx",
+            "symbol": "@/lib/color"
+          },
+          {
+            "path": "src/components/ExportMenu.tsx",
+            "symbol": "@/lib/clipboard"
+          },
+          {
+            "path": "src/components/ExportMenu.tsx",
+            "symbol": "@/lib/file"
+          },
+          {
+            "path": "src/components/ExportMenu.tsx",
+            "symbol": "@/lib/exports"
+          }
+        ]
+      }
+    },
+    {
+      "from": "src-components",
+      "to": "src-types",
+      "type": "imports",
+      "evidence": {
+        "status": "verified",
+        "locations": [
+          {
+            "path": "src/components/BrandLogo.tsx",
+            "symbol": "@/types/palette"
+          },
+          {
+            "path": "src/components/ControlPanel.test.tsx",
+            "symbol": "@/types/palette"
+          },
+          {
+            "path": "src/components/ControlPanel.tsx",
+            "symbol": "@/types/palette"
+          },
+          {
+            "path": "src/components/ExportMenu.test.tsx",
+            "symbol": "@/types/palette"
+          },
+          {
+            "path": "src/components/ExportMenu.tsx",
+            "symbol": "@/types/palette"
+          },
+          {
+            "path": "src/components/PaletteGrid.test.tsx",
+            "symbol": "@/types/palette"
+          },
+          {
+            "path": "src/components/PaletteGrid.tsx",
+            "symbol": "@/types/palette"
+          },
+          {
+            "path": "src/components/PreviewPanel.test.tsx",
+            "symbol": "@/types/palette"
+          }
+        ]
+      }
+    },
+    {
+      "from": "src-data",
+      "to": "src-types",
+      "type": "imports",
+      "evidence": {
+        "status": "verified",
+        "locations": [
+          {
+            "path": "src/data/official-presets.ts",
+            "symbol": "@/types/palette"
+          },
+          {
+            "path": "src/data/presets.ts",
+            "symbol": "@/types/palette"
+          }
+        ]
+      }
+    },
+    {
+      "from": "src-hooks",
+      "to": "external-dependencies",
+      "type": "imports",
+      "evidence": {
+        "status": "verified",
+        "locations": [
+          {
+            "path": "src/hooks/use-accent-theme.ts",
+            "symbol": "react"
+          },
+          {
+            "path": "src/hooks/use-debounced-commit.ts",
+            "symbol": "react"
+          },
+          {
+            "path": "src/hooks/use-media-query.ts",
+            "symbol": "react"
+          }
+        ]
+      }
+    },
+    {
+      "from": "src-hooks",
+      "to": "src-lib",
+      "type": "imports",
+      "evidence": {
+        "status": "verified",
+        "locations": [
+          {
+            "path": "src/hooks/use-accent-theme.ts",
+            "symbol": "@/lib/accent-palettes"
+          }
+        ]
+      }
+    },
+    {
+      "from": "src-hooks",
+      "to": "src-types",
+      "type": "imports",
+      "evidence": {
+        "status": "verified",
+        "locations": [
+          {
+            "path": "src/hooks/use-accent-theme.ts",
+            "symbol": "@/types/palette"
+          }
+        ]
+      }
+    },
+    {
+      "from": "src-lib",
+      "to": "external-dependencies",
+      "type": "imports",
+      "evidence": {
+        "status": "verified",
+        "locations": [
+          {
+            "path": "src/lib/clipboard.test.ts",
+            "symbol": "vitest"
+          },
+          {
+            "path": "src/lib/color-formats.test.ts",
+            "symbol": "vitest"
+          },
+          {
+            "path": "src/lib/file.test.ts",
+            "symbol": "vitest"
+          },
+          {
+            "path": "src/lib/utils.ts",
+            "symbol": "clsx"
+          },
+          {
+            "path": "src/lib/utils.ts",
+            "symbol": "tailwind-merge"
+          }
+        ]
+      }
+    },
+    {
+      "from": "src-lib",
+      "to": "src-data",
+      "type": "imports",
+      "evidence": {
+        "status": "verified",
+        "locations": [
+          {
+            "path": "src/lib/color.test.ts",
+            "symbol": "@/data/presets"
+          },
+          {
+            "path": "src/lib/color.ts",
+            "symbol": "@/data/presets"
+          },
+          {
+            "path": "src/lib/custom-presets.ts",
+            "symbol": "@/data/presets"
+          },
+          {
+            "path": "src/lib/storage.ts",
+            "symbol": "@/data/presets"
+          }
+        ]
+      }
+    },
+    {
+      "from": "src-lib",
+      "to": "src-types",
+      "type": "imports",
+      "evidence": {
+        "status": "verified",
+        "locations": [
+          {
+            "path": "src/lib/color.test.ts",
+            "symbol": "@/types/palette"
+          },
+          {
+            "path": "src/lib/color.ts",
+            "symbol": "@/types/palette"
+          },
+          {
+            "path": "src/lib/custom-presets.ts",
+            "symbol": "@/types/palette"
+          },
+          {
+            "path": "src/lib/exports.test.ts",
+            "symbol": "@/types/palette"
+          },
+          {
+            "path": "src/lib/exports.ts",
+            "symbol": "@/types/palette"
+          },
+          {
+            "path": "src/lib/gradient.test.ts",
+            "symbol": "@/types/studio"
+          },
+          {
+            "path": "src/lib/gradient.ts",
+            "symbol": "@/types/studio"
+          },
+          {
+            "path": "src/lib/storage.test.ts",
+            "symbol": "@/types/palette"
+          }
+        ]
+      }
+    },
+    {
+      "from": "vite-config",
+      "to": "external-dependencies",
+      "type": "imports",
+      "evidence": {
+        "status": "verified",
+        "locations": [
+          {
+            "path": "vite.config.ts",
+            "symbol": "@tailwindcss/vite"
+          },
+          {
+            "path": "vite.config.ts",
+            "symbol": "@vitejs/plugin-react"
+          },
+          {
+            "path": "vite.config.ts",
+            "symbol": "vite-plus"
+          }
+        ]
+      }
+    }
+  ],
+  "flows": [
+    {
+      "trigger": "Tracked reference index.html:/src/main.tsx",
+      "steps": ["index", "src", "src-components", "src-hooks", "src-lib", "external-dependencies"],
+      "outcome": "The verified dependency path reaches external-dependencies through 5 step(s)."
+    },
+    {
+      "trigger": "Tracked reference index.html:/src/main.tsx to src-data",
+      "steps": ["index", "src", "src-components", "src-hooks", "src-lib", "src-data"],
+      "outcome": "The verified dependency path reaches src-data through 5 step(s)."
+    },
+    {
+      "trigger": "Tracked reference index.html:/src/main.tsx to src-types",
+      "steps": ["index", "src", "src-components", "src-hooks", "src-lib", "src-types"],
+      "outcome": "The verified dependency path reaches src-types through 5 step(s)."
+    },
+    {
+      "trigger": "Tracked reference src/App.tsx:@/components/BrandLogo",
+      "steps": ["src", "src-components", "src-hooks", "src-lib", "src-data", "src-types"],
+      "outcome": "The verified dependency path reaches src-types through 5 step(s)."
+    },
+    {
+      "trigger": "Tracked reference index.html:/src/main.tsx to external-dependencies",
+      "steps": ["index", "src", "src-components", "src-hooks", "external-dependencies"],
+      "outcome": "The verified dependency path reaches external-dependencies through 4 step(s)."
+    }
+  ]
+}

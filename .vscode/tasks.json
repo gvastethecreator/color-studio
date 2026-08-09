@@ -4,7 +4,7 @@
     {
       "label": "📦 install",
       "type": "shell",
-      "command": "bun",
+      "command": "pnpm",
       "args": ["install"],
       "group": "build",
       "problemMatcher": []
@@ -12,7 +12,7 @@
     {
       "label": "👀 dev",
       "type": "shell",
-      "command": "bun",
+      "command": "pnpm",
       "args": ["run", "dev"],
       "isBackground": true,
       "group": "build",
@@ -21,7 +21,7 @@
     {
       "label": "✅ check",
       "type": "shell",
-      "command": "bun",
+      "command": "pnpm",
       "args": ["run", "check"],
       "group": "test",
       "problemMatcher": []
@@ -29,7 +29,7 @@
     {
       "label": "🧹 lint",
       "type": "shell",
-      "command": "bun",
+      "command": "pnpm",
       "args": ["run", "lint"],
       "group": "test",
       "problemMatcher": []
@@ -37,7 +37,7 @@
     {
       "label": "🧪 test",
       "type": "shell",
-      "command": "bun",
+      "command": "pnpm",
       "args": ["run", "test"],
       "group": "test",
       "problemMatcher": []
@@ -45,7 +45,7 @@
     {
       "label": "🏗️ build",
       "type": "shell",
-      "command": "bun",
+      "command": "pnpm",
       "args": ["run", "build"],
       "group": "build",
       "problemMatcher": []
@@ -53,7 +53,7 @@
     {
       "label": "🧼 clean",
       "type": "shell",
-      "command": "bun",
+      "command": "pnpm",
       "args": ["run", "clean"],
       "problemMatcher": []
     }

@@ -1,0 +1,74 @@
+{
+  "current_commit": "59edf5f0c8f3c1caafea98c8f77b2862646f132b",
+  "working_tree_dirty": true,
+  "generated_at": "2026-08-08T11:55:00Z",
+  "scanned_scope": [
+    "."
+  ],
+  "excluded_directories": [
+    ".cache",
+    ".git",
+    ".hg",
+    ".next",
+    ".nuxt",
+    ".svn",
+    ".turbo",
+    ".venv",
+    "__pycache__",
+    "build",
+    "coverage",
+    "dist",
+    "docs/codemap",
+    "generated",
+    "node_modules",
+    "out",
+    "target",
+    "vendor",
+    "venv"
+  ],
+  "fingerprint_algorithm": "sha256-path-content-v1",
+  "modules": [
+    {
+      "id": ".",
+      "path": ".",
+      "file_count": 11,
+      "fingerprint": "8f1f202cadc467c7f357d2530a5c3dd123f7db74c67b141350e491cbe60fff40"
+    },
+    {
+      "id": ".github",
+      "path": ".github",
+      "file_count": 2,
+      "fingerprint": "dccb2db97b25e3b03ca3a4051eb715df05450a900e48d7212749d8bd57d92dfd"
+    },
+    {
+      "id": ".vscode",
+      "path": ".vscode",
+      "file_count": 2,
+      "fingerprint": "46fc37ef56aeb21c2dbc03640adca73fee6ddf6637a0370a36d6da80c3a484a4"
+    },
+    {
+      "id": "docs",
+      "path": "docs",
+      "file_count": 8,
+      "fingerprint": "f75bbe655dbafac808a576fa21014793411c9345ca7c4f7a83fb7a3796be240f"
+    },
+    {
+      "id": "public",
+      "path": "public",
+      "file_count": 1,
+      "fingerprint": "0db691febec050ecb8eee2822d6946754cfb5b94d17ab04212757684abac6eb5"
+    },
+    {
+      "id": "scripts",
+      "path": "scripts",
+      "file_count": 2,
+      "fingerprint": "99cd31b41da5ef190d42ea3a269dfcff498d62b342c58e224bab99a7d4e48dfc"
+    },
+    {
+      "id": "src",
+      "path": "src",
+      "file_count": 129,
+      "fingerprint": "8262655b20318e583e585c3ffa1dca6bc664805d8cdc0824f164c89c3e50931d"
+    }
+  ]
+}

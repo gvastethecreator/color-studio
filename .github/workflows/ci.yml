@@ -16,10 +16,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: 1.3.11
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
 
       - name: Setup Vite+
         uses: voidzero-dev/setup-vp@v1
@@ -28,16 +26,16 @@ jobs:
           cache: true
 
       - name: Install dependencies
-        run: bun install --frozen-lockfile
+        run: pnpm install --frozen-lockfile
 
       - name: Run checks
-        run: bun run check
+        run: pnpm run check
 
       - name: Run tests
-        run: bun run test
+        run: pnpm run test
 
       - name: Build app
-        run: bun run build
+        run: pnpm run build
 
       - name: Upload logs and coverage
         if: always()

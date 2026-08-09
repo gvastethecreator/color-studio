@@ -5,7 +5,7 @@ import { spawn } from 'node:child_process';
 const [, , taskName, command, ...args] = process.argv;
 
 if (!taskName || !command) {
-  console.error('Usage: bun run scripts/run-with-log.mjs <task> <command> [...args]');
+  console.error('Usage: node scripts/run-with-log.mjs <task> <command> [...args]');
   process.exit(1);
 }
 
