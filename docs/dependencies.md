@@ -1,6 +1,6 @@
 # Dependencies
 
-Last reviewed: 2026-08-09.
+Last reviewed: 2026-08-14.
 
 pnpm 11.20.0 is the only package manager. Vite+ owns development, checks, tests, and builds. The matching Vite core and Vitest versions are pinned through the workspace catalog to prevent duplicate toolchain copies.
 
@@ -21,11 +21,11 @@ pnpm 11.20.0 is the only package manager. Vite+ owns development, checks, tests,
 - `typescript` and `@types/*`: static contracts.
 - `tailwindcss`, `@tailwindcss/vite`, and `tw-animate-css`: design tokens and styles.
 
-## 2026-08-09 upgrade review
+## 2026-08-14 upgrade review
 
 | Package | Before | Current | Important change or value |
 | --- | --- | --- | --- |
-| Vite+ / Vite core | 0.1.14 | 0.2.8 | Official migration moved config to the current catalog model, unified Vitest 4.1.10, and includes Windows task and security fixes. [Releases](https://github.com/voidzero-dev/vite-plus/releases) |
+| Vite+ / Vite core | 0.1.14 | 0.2.9 | Official migration moved config to the current catalog model, unified Vitest 4.1.10, and includes the latest patch fixes. [Releases](https://github.com/voidzero-dev/vite-plus/releases) |
 | TypeScript | 5.9.3 | 7.0.2 | Native compiler generation; the project passes current type and lint gates. [Release notes](https://www.typescriptlang.org/docs/handbook/release-notes/) |
 | React / React DOM | 19.2.3 | 19.2.8 | Current 19.2 patch line with activity and rendering fixes. [React 19.2](https://react.dev/blog/2025/10/01/react-19-2) |
 | Base UI | 1.5.0 | 1.7.0 | Focus restoration, popup/store bundle reductions, fewer redundant renders, and popup positioning fixes. [Changelog](https://base-ui.com/react/overview/releases) |
@@ -38,10 +38,10 @@ pnpm 11.20.0 is the only package manager. Vite+ owns development, checks, tests,
 | Vitest / Istanbul coverage | mixed 0.1.14 and 4.1.1 | 4.1.10 | One aligned Vitest graph; the prior mixed-version warning is gone. [Vitest releases](https://github.com/vitest-dev/vitest/releases) |
 | jsdom | 26.1.0 | 30.0.1 | Major DOM conformance upgrade; 30.0.1 fixes computed styles with `calc()` and improves large range operations. [Releases](https://github.com/jsdom/jsdom/releases) |
 | jest-dom | 6.6.3 | 7.0.0 | Current matcher major; the Vitest setup import remains the supported public entry. [Releases](https://github.com/testing-library/jest-dom/releases) |
-| Testing Library React / user-event | 16.3.0 / 14.6.1 | 16.3.2 / 14.6.3 | Current behavior-test fixes. [React releases](https://github.com/testing-library/react-testing-library/releases), [user-event releases](https://github.com/testing-library/user-event/releases) |
+| Testing Library React / user-event | 16.3.0 / 14.6.1 | 16.3.2 / 14.6.4 | Current behavior-test fixes. [React releases](https://github.com/testing-library/react-testing-library/releases), [user-event releases](https://github.com/testing-library/user-event/releases) |
 | Node / React type packages | Node 24.6, React 19.2.2 | Node 26.2, React 19.2.18 | Current platform and React declarations; TypeScript 7 compilation passes. [DefinitelyTyped releases](https://github.com/DefinitelyTyped/DefinitelyTyped/releases) |
 
-Unchanged direct packages were also checked against the registry. `pnpm outdated --format json` returns an empty object and `pnpm audit --json` reports zero vulnerabilities.
+The 2026-08-14 pass also updated `@testing-library/jest-dom` from 7.0.0 to 7.0.1. Unchanged direct packages were checked against the registry. `pnpm outdated --format json` returns an empty object and `pnpm audit --json` reports zero vulnerabilities.
 
 ## Operational rules
 
