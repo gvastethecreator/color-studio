@@ -6,6 +6,8 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
+.scratch/
+.code-review-graph/
 
 # Dependencies
 node_modules/
@@ -36,6 +38,7 @@ coverage/
 logs/coverage/
 test-results/
 playwright-report/
+.playwright-mcp/
 
 # Editor directories and files
 .vscode/*

@@ -1,6 +1,7 @@
 import {
   createDefaultStudioState,
   readStoredStudioState,
+  readStoredStudioStateWithStatus,
   STUDIO_STORAGE_KEY,
   writeStoredStudioState,
 } from '@/lib/studio-storage';
@@ -24,6 +25,18 @@ describe('studio storage', () => {
   it('falls back from malformed storage', () => {
     window.localStorage.setItem(STUDIO_STORAGE_KEY, '{not-json');
     expect(readStoredStudioState()).toEqual(createDefaultStudioState());
+  });
+
+  it('reports discarded storage only when unreadable data existed', () => {
+    expect(readStoredStudioStateWithStatus().discarded).toBe(false);
+
+    window.localStorage.setItem(STUDIO_STORAGE_KEY, '{not-json');
+    expect(readStoredStudioStateWithStatus().discarded).toBe(true);
+
+    window.localStorage.setItem(STUDIO_STORAGE_KEY, '"just a string"');
+    const status = readStoredStudioStateWithStatus();
+    expect(status.discarded).toBe(true);
+    expect(status.value).toEqual(createDefaultStudioState());
   });
 
   it('repairs invalid colors and underfilled gradients', () => {

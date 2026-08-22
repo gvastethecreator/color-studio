@@ -54,3 +54,11 @@ export interface StudioState {
   contrast: ContrastStudioState;
   mixer: MixerStudioState;
 }
+
+export interface StudioNotifyOptions {
+  type?: 'success' | 'error' | 'warning' | 'info';
+  /** Restores the previous state when the toast action activates. */
+  undo?: () => void;
+}
+
+export type StudioNotify = (message: string, options?: StudioNotifyOptions) => void;

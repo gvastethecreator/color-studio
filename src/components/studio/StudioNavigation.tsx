@@ -48,7 +48,7 @@ export function StudioNavigation({ activeTool, onChange }: StudioNavigationProps
     <nav className="studio-tool-rail" aria-label="Color tools">
       <p className="studio-rail-label">Tools</p>
       <div className="studio-tool-list">
-        {TOOLS.map((tool) => {
+        {TOOLS.map((tool, index) => {
           const Icon = tool.icon;
           const active = tool.id === activeTool;
           return (
@@ -58,6 +58,8 @@ export function StudioNavigation({ activeTool, onChange }: StudioNavigationProps
               className="studio-tool-button"
               data-active={active || undefined}
               aria-current={active ? 'page' : undefined}
+              title={`Press ${index + 1}`}
+              aria-keyshortcuts={String(index + 1)}
               onClick={() => onChange(tool.id)}
             >
               <span className="studio-tool-icon" aria-hidden="true">

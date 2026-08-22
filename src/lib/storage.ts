@@ -2,6 +2,7 @@ import { PRESETS } from '@/data/presets';
 import { parseCustomPresetData } from '@/lib/custom-presets';
 import { COLOR_FORMATS } from '@/lib/color-formats';
 import { isAccentPalette } from '@/lib/accent-palettes';
+import type { StoredRead } from '@/lib/studio-storage';
 import { createDefaultSettings } from '@/types/palette';
 import type { GeneratorSettings, PresetRegistry } from '@/types/palette';
 
@@ -36,24 +37,24 @@ export const ensureAvailablePreset = (
   };
 };
 
-export const readStoredSettings = (): GeneratorSettings => {
+export const readStoredSettingsWithStatus = (): StoredRead<GeneratorSettings> => {
   const defaults = createDefaultSettings();
 
   if (!hasStorage()) {
-    return defaults;
+    return { value: defaults, discarded: false };
   }
 
   try {
     const raw = window.localStorage.getItem(STORAGE_KEYS.settings);
 
     if (!raw) {
-      return defaults;
+      return { value: defaults, discarded: false };
     }
 
     const parsed = JSON.parse(raw);
 
     if (!isRecord(parsed)) {
-      return defaults;
+      return { value: defaults, discarded: true };
     }
 
     const overrides = isRecord(parsed.overrides)
@@ -84,19 +85,24 @@ export const readStoredSettings = (): GeneratorSettings => {
       : defaults.accentPalette;
 
     return {
-      preset: typeof parsed.preset === 'string' ? parsed.preset : defaults.preset,
-      hueShift: toFiniteNumber(parsed.hueShift, defaults.hueShift),
-      chromaScale: toFiniteNumber(parsed.chromaScale, defaults.chromaScale),
-      lightnessScale: toFiniteNumber(parsed.lightnessScale, defaults.lightnessScale),
-      overrides,
-      colorFormat,
-      theme,
-      accentPalette,
+      value: {
+        preset: typeof parsed.preset === 'string' ? parsed.preset : defaults.preset,
+        hueShift: toFiniteNumber(parsed.hueShift, defaults.hueShift),
+        chromaScale: toFiniteNumber(parsed.chromaScale, defaults.chromaScale),
+        lightnessScale: toFiniteNumber(parsed.lightnessScale, defaults.lightnessScale),
+        overrides,
+        colorFormat,
+        theme,
+        accentPalette,
+      },
+      discarded: false,
     };
   } catch {
-    return defaults;
+    return { value: defaults, discarded: true };
   }
 };
+
+export const readStoredSettings = (): GeneratorSettings => readStoredSettingsWithStatus().value;
 
 export const writeStoredSettings = (settings: GeneratorSettings): void => {
   if (!hasStorage()) {
@@ -106,23 +112,29 @@ export const writeStoredSettings = (settings: GeneratorSettings): void => {
   window.localStorage.setItem(STORAGE_KEYS.settings, JSON.stringify(settings));
 };
 
-export const readStoredCustomPresets = (): PresetRegistry => {
+export const readStoredCustomPresetsWithStatus = (): StoredRead<PresetRegistry> => {
   if (!hasStorage()) {
-    return {};
+    return { value: {}, discarded: false };
   }
 
   try {
     const raw = window.localStorage.getItem(STORAGE_KEYS.customPresets);
 
     if (!raw) {
-      return {};
+      return { value: {}, discarded: false };
     }
 
-    return parseCustomPresetData(JSON.parse(raw), Object.keys(PRESETS));
+    return {
+      value: parseCustomPresetData(JSON.parse(raw), Object.keys(PRESETS)),
+      discarded: false,
+    };
   } catch {
-    return {};
+    return { value: {}, discarded: true };
   }
 };
+
+export const readStoredCustomPresets = (): PresetRegistry =>
+  readStoredCustomPresetsWithStatus().value;
 
 export const writeStoredCustomPresets = (presetRegistry: PresetRegistry): void => {
   if (!hasStorage()) {

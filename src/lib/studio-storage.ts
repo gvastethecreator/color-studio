@@ -12,6 +12,12 @@ import type {
 
 export const STUDIO_STORAGE_KEY = 'color-studio.workbench.v1';
 
+export interface StoredRead<T> {
+  value: T;
+  /** True when stored data existed but was discarded because it was unreadable. */
+  discarded: boolean;
+}
+
 const HARMONIES: HarmonyId[] = [
   'analogous',
   'complementary',
@@ -139,50 +145,57 @@ const parseGradient = (value: unknown, defaults: GradientStudioState): GradientS
   };
 };
 
-export const readStoredStudioState = (): StudioState => {
+export const readStoredStudioStateWithStatus = (): StoredRead<StudioState> => {
   const defaults = createDefaultStudioState();
-  if (typeof window === 'undefined' || !window.localStorage) return defaults;
+  if (typeof window === 'undefined' || !window.localStorage) {
+    return { value: defaults, discarded: false };
+  }
 
   try {
     const raw = window.localStorage.getItem(STUDIO_STORAGE_KEY);
-    if (!raw) return defaults;
+    if (!raw) return { value: defaults, discarded: false };
     const value: unknown = JSON.parse(raw);
-    if (!isRecord(value)) return defaults;
+    if (!isRecord(value)) return { value: defaults, discarded: true };
 
     const contrast = isRecord(value.contrast) ? value.contrast : {};
     const mixer = isRecord(value.mixer) ? value.mixer : {};
 
     return {
-      version: 1,
-      activeTool: known(value.activeTool, TOOLS, defaults.activeTool),
-      palette: parsePalette(value.palette, defaults.palette),
-      gradient: parseGradient(value.gradient, defaults.gradient),
-      contrast: {
-        foreground:
-          typeof contrast.foreground === 'string' && isValidHex(contrast.foreground)
-            ? normalizeHex(contrast.foreground)
-            : defaults.contrast.foreground,
-        background:
-          typeof contrast.background === 'string' && isValidHex(contrast.background)
-            ? normalizeHex(contrast.background)
-            : defaults.contrast.background,
+      value: {
+        version: 1,
+        activeTool: known(value.activeTool, TOOLS, defaults.activeTool),
+        palette: parsePalette(value.palette, defaults.palette),
+        gradient: parseGradient(value.gradient, defaults.gradient),
+        contrast: {
+          foreground:
+            typeof contrast.foreground === 'string' && isValidHex(contrast.foreground)
+              ? normalizeHex(contrast.foreground)
+              : defaults.contrast.foreground,
+          background:
+            typeof contrast.background === 'string' && isValidHex(contrast.background)
+              ? normalizeHex(contrast.background)
+              : defaults.contrast.background,
+        },
+        mixer: {
+          start:
+            typeof mixer.start === 'string' && isValidHex(mixer.start)
+              ? normalizeHex(mixer.start)
+              : defaults.mixer.start,
+          end:
+            typeof mixer.end === 'string' && isValidHex(mixer.end)
+              ? normalizeHex(mixer.end)
+              : defaults.mixer.end,
+          amount: finite(mixer.amount, defaults.mixer.amount, 0, 100),
+        },
       },
-      mixer: {
-        start:
-          typeof mixer.start === 'string' && isValidHex(mixer.start)
-            ? normalizeHex(mixer.start)
-            : defaults.mixer.start,
-        end:
-          typeof mixer.end === 'string' && isValidHex(mixer.end)
-            ? normalizeHex(mixer.end)
-            : defaults.mixer.end,
-        amount: finite(mixer.amount, defaults.mixer.amount, 0, 100),
-      },
+      discarded: false,
     };
   } catch {
-    return defaults;
+    return { value: defaults, discarded: true };
   }
 };
+
+export const readStoredStudioState = (): StudioState => readStoredStudioStateWithStatus().value;
 
 export const writeStoredStudioState = (state: StudioState): void => {
   if (typeof window === 'undefined' || !window.localStorage) return;

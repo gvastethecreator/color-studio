@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
   IconBraces,
+  IconContrast2,
   IconCopy,
   IconRefresh,
   IconSparkles,
@@ -22,9 +23,15 @@ interface PaletteComposerProps {
   state: PaletteComposerState;
   onChange: (state: PaletteComposerState) => void;
   onCopy: (text: string, label: string) => void;
+  onTestInContrast?: (color: string) => void;
 }
 
-export function PaletteComposer({ state, onChange, onCopy }: PaletteComposerProps) {
+export function PaletteComposer({
+  state,
+  onChange,
+  onCopy,
+  onTestInContrast,
+}: PaletteComposerProps) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const selectedColor = state.colors[selectedIndex] ?? state.colors[0] ?? state.seed;
   const harmony = useMemo(
@@ -159,6 +166,14 @@ export function PaletteComposer({ state, onChange, onCopy }: PaletteComposerProp
               <button
                 type="button"
                 className="studio-button"
+                onClick={() => onCopy(formatHexAsOklch(selectedColor), 'OKLCH color')}
+              >
+                <IconCopy aria-hidden="true" />
+                Copy OKLCH
+              </button>
+              <button
+                type="button"
+                className="studio-button"
                 onClick={() => onCopy(generatePaletteCss(state.colors), 'CSS palette')}
               >
                 <IconBraces aria-hidden="true" />
@@ -172,6 +187,16 @@ export function PaletteComposer({ state, onChange, onCopy }: PaletteComposerProp
                 <IconBraces aria-hidden="true" />
                 JSON
               </button>
+              {onTestInContrast && (
+                <button
+                  type="button"
+                  className="studio-button"
+                  onClick={() => onTestInContrast(selectedColor)}
+                >
+                  <IconContrast2 aria-hidden="true" />
+                  Test in Contrast
+                </button>
+              )}
             </div>
           </article>
         </div>

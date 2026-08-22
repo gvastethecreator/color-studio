@@ -1,4 +1,4 @@
-import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { IconCircleCheck, IconSparkles } from '@tabler/icons-react';
 import { BrandLogo } from '@/components/BrandLogo';
 import { ThemeToggle } from '@/components/ThemeToggle';
@@ -14,14 +14,14 @@ import { copyTextToClipboard } from '@/lib/clipboard';
 import { parseCustomPresetText } from '@/lib/custom-presets';
 import {
   ensureAvailablePreset,
-  readStoredCustomPresets,
-  readStoredSettings,
+  readStoredCustomPresetsWithStatus,
+  readStoredSettingsWithStatus,
   writeStoredCustomPresets,
   writeStoredSettings,
 } from '@/lib/storage';
-import { readStoredStudioState, writeStoredStudioState } from '@/lib/studio-storage';
-import type { GeneratorSettings, PresetRegistry, ThemeMode } from '@/types/palette';
-import type { StudioState, StudioToolId } from '@/types/studio';
+import { readStoredStudioStateWithStatus, writeStoredStudioState } from '@/lib/studio-storage';
+import type { PresetRegistry, ThemeMode } from '@/types/palette';
+import type { StudioNotifyOptions, StudioToolId } from '@/types/studio';
 
 const GradientEditor = lazy(() =>
   import('@/components/studio/GradientEditor').then(({ GradientEditor }) => ({
@@ -45,8 +45,20 @@ const mergePresetRegistries = (customPresets: PresetRegistry): PresetRegistry =>
   ...customPresets,
 });
 
-const notify = (message: string, type: 'success' | 'error' = 'success') => {
-  toastManager.add({ description: message, type });
+const UNDO_TOAST_TIMEOUT_MS = 8000;
+
+const notify = (message: string, options: StudioNotifyOptions = {}) => {
+  const { type = 'success', undo } = options;
+  toastManager.add({
+    description: message,
+    type,
+    ...(undo
+      ? {
+          timeout: UNDO_TOAST_TIMEOUT_MS,
+          actionProps: { children: 'Undo', onClick: undo },
+        }
+      : {}),
+  });
 };
 
 const applyTheme = (theme: ThemeMode) => {
@@ -67,11 +79,44 @@ const TOOL_TITLES: Record<StudioToolId, string> = {
   contrast: 'Contrast + Mix',
 };
 
+const SHORTCUT_TOOLS: Record<string, StudioToolId> = {
+  1: 'palette',
+  2: 'gradient',
+  3: 'scale',
+  4: 'contrast',
+};
+
 export default function App() {
-  const [customPresets, setCustomPresets] = useState<PresetRegistry>(readStoredCustomPresets);
-  const [settings, setSettings] = useState<GeneratorSettings>(readStoredSettings);
-  const [studio, setStudio] = useState<StudioState>(readStoredStudioState);
+  const initialStorage = useMemo(
+    () => ({
+      studio: readStoredStudioStateWithStatus(),
+      settings: readStoredSettingsWithStatus(),
+      customPresets: readStoredCustomPresetsWithStatus(),
+    }),
+    [],
+  );
+  const [customPresets, setCustomPresets] = useState(initialStorage.customPresets.value);
+  const [settings, setSettings] = useState(initialStorage.settings.value);
+  const [studio, setStudio] = useState(initialStorage.studio.value);
   const presetRegistry = useMemo(() => mergePresetRegistries(customPresets), [customPresets]);
+  const corruptionReported = useRef(false);
+
+  useEffect(() => {
+    if (corruptionReported.current) return;
+    const discarded =
+      initialStorage.studio.discarded ||
+      initialStorage.settings.discarded ||
+      initialStorage.customPresets.discarded;
+
+    if (discarded) {
+      corruptionReported.current = true;
+      // Defer one tick: the ToastProvider above this component subscribes to the
+      // toast manager in its own effect, which runs after this one on mount.
+      window.setTimeout(() => {
+        notify('Saved data was invalid, so defaults were restored.', { type: 'warning' });
+      }, 0);
+    }
+  }, [initialStorage]);
 
   useEffect(() => {
     setSettings((previous) => ensureAvailablePreset(previous, presetRegistry));
@@ -81,6 +126,29 @@ export default function App() {
   useEffect(() => writeStoredCustomPresets(customPresets), [customPresets]);
   useEffect(() => writeStoredStudioState(studio), [studio]);
   useEffect(() => applyTheme(settings.theme), [settings.theme]);
+
+  useEffect(() => {
+    const handleToolShortcut = (event: KeyboardEvent) => {
+      if (event.ctrlKey || event.metaKey || event.altKey) return;
+      const target = event.target as HTMLElement | null;
+      if (!target) return;
+      if (
+        target.isContentEditable ||
+        ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName) ||
+        target.closest('[role="dialog"], [role="listbox"], [role="menu"]')
+      ) {
+        return;
+      }
+      const tool = SHORTCUT_TOOLS[event.key];
+      if (!tool) return;
+      setStudio((previous) =>
+        previous.activeTool === tool ? previous : { ...previous, activeTool: tool },
+      );
+    };
+
+    window.addEventListener('keydown', handleToolShortcut);
+    return () => window.removeEventListener('keydown', handleToolShortcut);
+  }, []);
 
   useAccentTheme(settings.accentPalette);
 
@@ -109,8 +177,16 @@ export default function App() {
       copied
         ? `${label} copied.`
         : 'Clipboard is unavailable. Select the visible value and copy it manually.',
-      copied ? 'success' : 'error',
+      { type: copied ? 'success' : 'error' },
     );
+  }, []);
+
+  const handleTestInContrast = useCallback((color: string) => {
+    setStudio((previous) => ({
+      ...previous,
+      activeTool: 'contrast',
+      contrast: { ...previous.contrast, foreground: color },
+    }));
   }, []);
 
   const handleImportPreset = async (file: File) => {
@@ -131,10 +207,9 @@ export default function App() {
           : `Imported ${importedIds.length} custom presets.`,
       );
     } catch (error) {
-      notify(
-        error instanceof Error ? error.message : 'Unable to import custom preset JSON.',
-        'error',
-      );
+      notify(error instanceof Error ? error.message : 'Unable to import custom preset JSON.', {
+        type: 'error',
+      });
     }
   };
 
@@ -187,6 +262,7 @@ export default function App() {
                   state={studio.palette}
                   onChange={(palette) => setStudio((previous) => ({ ...previous, palette }))}
                   onCopy={(text, label) => void handleCopy(text, label)}
+                  onTestInContrast={handleTestInContrast}
                 />
               )}
               {studio.activeTool === 'gradient' && (
@@ -194,6 +270,7 @@ export default function App() {
                   state={studio.gradient}
                   onChange={(gradient) => setStudio((previous) => ({ ...previous, gradient }))}
                   onCopy={(text, label) => void handleCopy(text, label)}
+                  onNotify={notify}
                 />
               )}
               {studio.activeTool === 'scale' && (

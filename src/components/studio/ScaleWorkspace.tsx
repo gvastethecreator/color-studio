@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { generatePalettes, getSafeActiveFamily } from '@/lib/color';
 import { createDefaultSettings } from '@/types/palette';
 import type { AccentPaletteId, GeneratorSettings, PresetRegistry } from '@/types/palette';
+import type { StudioNotify } from '@/types/studio';
 
 interface ScaleWorkspaceProps {
   settings: GeneratorSettings;
@@ -20,7 +21,7 @@ interface ScaleWorkspaceProps {
   onImportPreset: (file: File) => Promise<void> | void;
   accentPalette: AccentPaletteId;
   onCycleAccent: () => void;
-  onNotify: (message: string, type?: 'success' | 'error') => void;
+  onNotify: StudioNotify;
 }
 
 export function ScaleWorkspace({
@@ -60,6 +61,12 @@ export function ScaleWorkspace({
     return () => window.clearTimeout(timer);
   }, [copiedSwatchId]);
 
+  const resetScaleSettings = () => {
+    const previous = settings;
+    setSettings(createDefaultSettings());
+    onNotify('Scale settings reset.', { undo: () => setSettings(previous) });
+  };
+
   if (!activeFamily) {
     return (
       <div className="studio-empty-state">No scale families are available for this preset.</div>
@@ -72,10 +79,7 @@ export function ScaleWorkspace({
         embedded
         settings={settings}
         setSettings={setSettings}
-        onReset={() => {
-          setSettings(createDefaultSettings());
-          onNotify('Scale settings reset.');
-        }}
+        onReset={resetScaleSettings}
         activeFamilyId={activeFamily.id}
         activeFamilyDisplayName={activeFamily.name}
         presetOptions={presetRegistry}
@@ -122,6 +126,7 @@ export function ScaleWorkspace({
             <ExportMenu
               palettes={palettes}
               colorFormat={settings.colorFormat}
+              presetId={settings.preset}
               onNotify={onNotify}
             />
             <Button
@@ -129,10 +134,7 @@ export function ScaleWorkspace({
               size="icon-sm"
               variant="ghost"
               aria-label="Reset scale settings"
-              onClick={() => {
-                setSettings(createDefaultSettings());
-                onNotify('Scale settings reset.');
-              }}
+              onClick={resetScaleSettings}
             >
               <IconRotate aria-hidden="true" />
             </Button>

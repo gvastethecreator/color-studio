@@ -6,6 +6,7 @@ import {
   IconX,
 } from '@tabler/icons-react';
 import { ColorField } from '@/components/studio/ColorField';
+import { NumberField, NumberFieldGroup, NumberFieldInput } from '@/components/ui/number-field';
 import { getContrastRatio } from '@/lib/accessibility';
 import { mixHexColors } from '@/lib/studio-color';
 import type { ContrastStudioState, MixerStudioState } from '@/types/studio';
@@ -48,7 +49,20 @@ export function ContrastTool({
             <h2 id="contrast-title">Contrast + Mix</h2>
             <p>Test a real foreground pair, then build a deliberate bridge between two colors.</p>
           </div>
-          <span className="contrast-ratio-pill" data-pass={ratio >= 4.5 || undefined}>
+          <span
+            className="contrast-ratio-pill"
+            data-pass={ratio >= 4.5 || undefined}
+            data-partial={ratio >= 3 && ratio < 4.5 ? '' : undefined}
+            title={
+              ratio >= 7
+                ? 'Passes AAA for normal text.'
+                : ratio >= 4.5
+                  ? 'Passes AA for normal text.'
+                  : ratio >= 3
+                    ? 'Passes AA for large text only.'
+                    : 'Below WCAG text thresholds.'
+            }
+          >
             {ratioLabel}
           </span>
         </header>
@@ -113,21 +127,39 @@ export function ContrastTool({
             </div>
           </div>
 
-          <label className="studio-range-field mixer-range" htmlFor="mix-amount">
+          <div className="studio-range-field mixer-range">
             <span>
               <span>Mix amount</span>
-              <output>{mixer.amount}% toward end</output>
+              <NumberField
+                className="w-auto flex-row items-center gap-0"
+                value={mixer.amount}
+                min={0}
+                max={100}
+                onValueChange={(value) => {
+                  if (typeof value === 'number') {
+                    onMixerChange({ ...mixer, amount: value });
+                  }
+                }}
+              >
+                <NumberFieldGroup className="h-6 w-[4.25rem] border-border/60 bg-transparent">
+                  <NumberFieldInput
+                    aria-label="Mix amount in percent"
+                    className="font-mono text-[10.5px] text-foreground h-full py-0 leading-6.5 text-center"
+                  />
+                </NumberFieldGroup>
+              </NumberField>
             </span>
             <input
               id="mix-amount"
               type="range"
+              aria-label="Mix amount"
               min="0"
               max="100"
               step="1"
               value={mixer.amount}
               onChange={(event) => onMixerChange({ ...mixer, amount: Number(event.target.value) })}
             />
-          </label>
+          </div>
 
           <div className="studio-inline-actions">
             <button

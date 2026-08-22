@@ -1,12 +1,14 @@
 import { IconBraces, IconCopy, IconGradienter, IconPlus, IconTrash } from '@tabler/icons-react';
 import { ColorField } from '@/components/studio/ColorField';
+import { NumberField, NumberFieldGroup, NumberFieldInput } from '@/components/ui/number-field';
 import { buildGradientCss, createStopInLargestGap, sortGradientStops } from '@/lib/gradient';
-import type { GradientStudioState, GradientType } from '@/types/studio';
+import type { GradientStudioState, GradientType, StudioNotify } from '@/types/studio';
 
 interface GradientEditorProps {
   state: GradientStudioState;
   onChange: (state: GradientStudioState) => void;
   onCopy: (text: string, label: string) => void;
+  onNotify: StudioNotify;
 }
 
 const TYPE_OPTIONS: Array<{ id: GradientType; label: string }> = [
@@ -22,7 +24,7 @@ function createStopId() {
   return `stop-${Date.now()}-${stopSequence}`;
 }
 
-export function GradientEditor({ state, onChange, onCopy }: GradientEditorProps) {
+export function GradientEditor({ state, onChange, onCopy, onNotify }: GradientEditorProps) {
   const stops = sortGradientStops(state.stops);
   const selectedStop = stops.find((stop) => stop.id === state.selectedStopId) ?? stops[0];
   const compatibleCss = buildGradientCss(state);
@@ -53,6 +55,8 @@ export function GradientEditor({ state, onChange, onCopy }: GradientEditorProps)
 
   const removeStop = () => {
     if (!canRemove || !selectedStop) return;
+    const previousState = state;
+    const removedLabel = `${selectedStop.color} at ${selectedStop.position}%`;
     const remaining = stops.filter((stop) => stop.id !== selectedStop.id);
     const nextSelected = remaining.reduce((closest, stop) =>
       Math.abs(stop.position - selectedStop.position) <
@@ -64,6 +68,9 @@ export function GradientEditor({ state, onChange, onCopy }: GradientEditorProps)
       ...state,
       stops: remaining,
       selectedStopId: nextSelected.id,
+    });
+    onNotify(`Removed stop ${removedLabel}.`, {
+      undo: () => onChange(previousState),
     });
   };
 
@@ -208,21 +215,39 @@ export function GradientEditor({ state, onChange, onCopy }: GradientEditorProps)
         </fieldset>
 
         {state.type !== 'radial' && (
-          <label className="studio-range-field" htmlFor="gradient-angle">
+          <div className="studio-range-field">
             <span>
               <span>{state.type === 'conic' ? 'Start angle' : 'Angle'}</span>
-              <output>{Math.round(state.angle)}°</output>
+              <NumberField
+                className="w-auto flex-row items-center gap-0"
+                value={Math.round(state.angle)}
+                min={0}
+                max={360}
+                onValueChange={(value) => {
+                  if (typeof value === 'number') {
+                    onChange({ ...state, angle: value });
+                  }
+                }}
+              >
+                <NumberFieldGroup className="h-6 w-[4.25rem] border-border/60 bg-transparent">
+                  <NumberFieldInput
+                    aria-label="Angle in degrees"
+                    className="font-mono text-[10.5px] text-foreground h-full py-0 leading-6.5 text-center"
+                  />
+                </NumberFieldGroup>
+              </NumberField>
             </span>
             <input
               id="gradient-angle"
               type="range"
+              aria-label={state.type === 'conic' ? 'Start angle' : 'Angle'}
               min="0"
               max="360"
               step="1"
               value={state.angle}
               onChange={(event) => onChange({ ...state, angle: Number(event.target.value) })}
             />
-          </label>
+          </div>
         )}
 
         <div className="studio-field">
@@ -263,21 +288,39 @@ export function GradientEditor({ state, onChange, onCopy }: GradientEditorProps)
               value={selectedStop.color}
               onChange={(color) => updateStop({ color })}
             />
-            <label className="studio-range-field" htmlFor="gradient-stop-position">
+            <div className="studio-range-field">
               <span>
                 <span>Position</span>
-                <output>{selectedStop.position}%</output>
+                <NumberField
+                  className="w-auto flex-row items-center gap-0"
+                  value={selectedStop.position}
+                  min={0}
+                  max={100}
+                  onValueChange={(value) => {
+                    if (typeof value === 'number') {
+                      updateStop({ position: value });
+                    }
+                  }}
+                >
+                  <NumberFieldGroup className="h-6 w-[4.25rem] border-border/60 bg-transparent">
+                    <NumberFieldInput
+                      aria-label="Stop position in percent"
+                      className="font-mono text-[10.5px] text-foreground h-full py-0 leading-6.5 text-center"
+                    />
+                  </NumberFieldGroup>
+                </NumberField>
               </span>
               <input
                 id="gradient-stop-position"
                 type="range"
+                aria-label={`Stop ${stops.findIndex((stop) => stop.id === selectedStop.id) + 1} position`}
                 min="0"
                 max="100"
                 step="1"
                 value={selectedStop.position}
                 onChange={(event) => updateStop({ position: Number(event.target.value) })}
               />
-            </label>
+            </div>
             <div className="gradient-stop-actions">
               <button className="studio-button" type="button" onClick={addStop} disabled={!canAdd}>
                 <IconPlus aria-hidden="true" />

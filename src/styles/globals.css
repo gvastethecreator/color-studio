@@ -1587,6 +1587,11 @@ textarea {
   color: #4da578;
 }
 
+.contrast-ratio-pill[data-partial] {
+  border-color: color-mix(in srgb, #d19a3f 45%, var(--studio-line));
+  color: #d19a3f;
+}
+
 .contrast-preview-grid {
   grid-template-columns: minmax(0, 1.25fr) minmax(16rem, 0.75fr);
 }

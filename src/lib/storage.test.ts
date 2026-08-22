@@ -2,13 +2,30 @@ import {
   STORAGE_KEYS,
   ensureAvailablePreset,
   readStoredCustomPresets,
+  readStoredCustomPresetsWithStatus,
   readStoredSettings,
+  readStoredSettingsWithStatus,
   writeStoredCustomPresets,
   writeStoredSettings,
 } from '@/lib/storage';
 import { createDefaultSettings } from '@/types/palette';
 
 describe('storage helpers', () => {
+  it('reports discarded settings and presets only for unreadable stored data', () => {
+    expect(readStoredSettingsWithStatus().discarded).toBe(false);
+    expect(readStoredCustomPresetsWithStatus().discarded).toBe(false);
+
+    window.localStorage.setItem(STORAGE_KEYS.settings, '12');
+    const settingsRead = readStoredSettingsWithStatus();
+    expect(settingsRead.discarded).toBe(true);
+    expect(settingsRead.value).toEqual(createDefaultSettings());
+
+    window.localStorage.setItem(STORAGE_KEYS.customPresets, '{not-json');
+    const presetsRead = readStoredCustomPresetsWithStatus();
+    expect(presetsRead.discarded).toBe(true);
+    expect(presetsRead.value).toEqual({});
+  });
+
   it('stores and reads generator settings', () => {
     const settings = {
       ...createDefaultSettings(),

@@ -19,6 +19,7 @@ import type { ColorFamily } from '@/types/palette';
 interface ExportMenuProps {
   palettes: ColorFamily[];
   colorFormat: ColorFormat;
+  presetId?: string;
   onNotify: (message: string) => void;
 }
 
@@ -30,10 +31,19 @@ interface ExportOption {
   icon: typeof FileType;
   copyMessage: string;
   downloadMessage: string;
-  filename: string;
+  filenameSuffix: 'tokens.css' | 'theme.css' | 'tokens.json';
   mimeType: string;
   generate: (palettes: ColorFamily[]) => string;
 }
+
+const EXPORT_FALLBACK_PRESET_ID = 'color-studio';
+
+const exportFilename = (option: ExportOption, presetId: string | undefined): string => {
+  const id = presetId?.trim() ? presetId.trim().toLowerCase() : EXPORT_FALLBACK_PRESET_ID;
+  const safeId = id.replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+
+  return `${safeId || EXPORT_FALLBACK_PRESET_ID}.${option.filenameSuffix}`;
+};
 
 const EXPORT_OPTIONS: Record<ExportType, ExportOption> = {
   css: {
@@ -42,7 +52,7 @@ const EXPORT_OPTIONS: Record<ExportType, ExportOption> = {
     icon: IconFileTypeCsv,
     copyMessage: 'CSS variables copied to clipboard.',
     downloadMessage: 'CSS variables downloaded.',
-    filename: 'prism-architect.tokens.css',
+    filenameSuffix: 'tokens.css',
     mimeType: 'text/css;charset=utf-8',
     generate: generateCSSVariables,
   },
@@ -52,7 +62,7 @@ const EXPORT_OPTIONS: Record<ExportType, ExportOption> = {
     icon: IconFileCode,
     copyMessage: 'Tailwind 4 theme tokens copied to clipboard.',
     downloadMessage: 'Tailwind 4 theme tokens downloaded.',
-    filename: 'prism-architect.theme.css',
+    filenameSuffix: 'theme.css',
     mimeType: 'text/css;charset=utf-8',
     generate: generateTailwind4CSS,
   },
@@ -62,13 +72,17 @@ const EXPORT_OPTIONS: Record<ExportType, ExportOption> = {
     icon: IconJson,
     copyMessage: 'JSON token export copied to clipboard.',
     downloadMessage: 'JSON token export downloaded.',
-    filename: 'prism-architect.tokens.json',
+    filenameSuffix: 'tokens.json',
     mimeType: 'application/json;charset=utf-8',
     generate: generateTokenJson,
   },
 };
 
-export default function ExportMenu({ palettes, onNotify }: ExportMenuProps): ReactElement {
+export default function ExportMenu({
+  palettes,
+  presetId,
+  onNotify,
+}: ExportMenuProps): ReactElement {
   const handleCopy = async (type: ExportType) => {
     const option = EXPORT_OPTIONS[type];
     const copied = await copyTextToClipboard(option.generate(palettes));
@@ -80,7 +94,7 @@ export default function ExportMenu({ palettes, onNotify }: ExportMenuProps): Rea
     const option = EXPORT_OPTIONS[type];
     const downloaded = downloadTextFile(
       option.generate(palettes),
-      option.filename,
+      exportFilename(option, presetId),
       option.mimeType,
     );
 
