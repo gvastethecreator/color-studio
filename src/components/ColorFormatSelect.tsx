@@ -42,7 +42,7 @@ export function ColorFormatSelect({ value, onChange }: ColorFormatSelectProps): 
       onValueChange={handleValueChange}
       itemToStringValue={(item) => item.value}
     >
-      <SelectTrigger size="sm" className="min-w-30" aria-label="Color format" title="Color format">
+      <SelectTrigger size="sm" className="w-28" aria-label="Color format" title="Color format">
         <SelectValue placeholder="Format">
           {(item) => (
             <span className="flex items-center gap-2">

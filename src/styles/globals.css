@@ -607,7 +607,7 @@ textarea {
   z-index: 20;
   display: grid;
   height: 4.25rem;
-  grid-template-columns: minmax(13rem, 1fr) auto minmax(13rem, 1fr);
+  grid-template-columns: minmax(13rem, 1fr) auto;
   align-items: center;
   gap: 1.5rem;
   border-bottom: 1px solid var(--studio-line);
@@ -1791,8 +1791,12 @@ textarea {
   gap: 0.42rem;
 }
 
+.scale-toolbar-actions > * {
+  flex-shrink: 0;
+}
+
 .scale-view-switcher {
-  width: 10rem;
+  width: auto;
 }
 
 .scale-preview-wrap {
