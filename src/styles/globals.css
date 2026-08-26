@@ -1576,6 +1576,8 @@ textarea {
 /* Contrast and mix */
 
 .contrast-ratio-pill {
+  align-self: flex-start;
+  width: max-content;
   border-color: color-mix(in srgb, #ce604f 45%, var(--studio-line));
   color: #ce604f;
   font-family: var(--font-mono);
