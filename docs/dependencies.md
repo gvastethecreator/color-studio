@@ -8,10 +8,8 @@ pnpm 11.20.0 is the only package manager. Vite+ owns development, checks, tests,
 
 - `react` and `react-dom`: application rendering.
 - `@base-ui/react`: accessible, unstyled controls and popups.
-- `@daypicker/react`: current DayPicker package used by the calendar wrapper.
 - `@fontsource-variable/inter`: local variable font assets.
 - `@tabler/icons-react`: icon components.
-- `gsap` and `@gsap/react`: scoped animation lifecycle.
 - `class-variance-authority`, `clsx`, and `tailwind-merge`: reusable class composition.
 
 ## Development responsibilities
@@ -29,8 +27,8 @@ pnpm 11.20.0 is the only package manager. Vite+ owns development, checks, tests,
 | TypeScript | 5.9.3 | 7.0.2 | Native compiler generation; the project passes current type and lint gates. [Release notes](https://www.typescriptlang.org/docs/handbook/release-notes/) |
 | React / React DOM | 19.2.3 | 19.2.8 | Current 19.2 patch line with activity and rendering fixes. [React 19.2](https://react.dev/blog/2025/10/01/react-19-2) |
 | Base UI | 1.5.0 | 1.7.0 | Focus restoration, popup/store bundle reductions, fewer redundant renders, and popup positioning fixes. [Changelog](https://base-ui.com/react/overview/releases) |
-| DayPicker | `react-day-picker` 10.0.1 | `@daypicker/react` 10.0.1 | Migrated from the compatibility package name to the supported v10 package. [Migration guide](https://daypicker.dev/upgrading) |
-| GSAP | 3.13.0 | 3.15.0 | Current animation runtime; existing React cleanup contract remains valid. [Releases](https://github.com/greensock/GSAP/releases) |
+| DayPicker | `@daypicker/react` 10.0.1 | removed | Unused calendar wrapper was pruned with the unused UI kit. |
+| GSAP | 3.15.0 | removed | No product import remained. |
 | Tabler Icons React | 3.44.0 | 3.46.0 | Current icon catalog and fixes. [Releases](https://github.com/tabler/tabler-icons/releases) |
 | Inter variable font | 5.2.8 | 5.3.0 | Current packaged font assets. [Changelog](https://github.com/fontsource/font-files/releases) |
 | Tailwind CSS / Vite plugin | 4.1.12 | 4.3.3 | Current CSS pipeline and Vite integration. [Tailwind 4.3](https://tailwindcss.com/blog/tailwindcss-v4-3) |
