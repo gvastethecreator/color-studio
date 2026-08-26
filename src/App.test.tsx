@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import App from '@/App';
 import * as clipboard from '@/lib/clipboard';
@@ -305,5 +305,17 @@ describe('App', () => {
     expect(
       screen.getByRole('button', { name: /select palette color 1: #FF0000/i }),
     ).toBeInTheDocument();
+  });
+
+  it('keeps the chroma number field in sync with the slider', () => {
+    render(<App />);
+
+    const slider = screen.getByRole('slider', { name: 'Chroma' });
+    fireEvent.change(slider, { target: { value: '0.2' } });
+
+    expect(slider).toHaveValue('0.2');
+    expect(
+      screen.getByRole('textbox', { name: 'Chroma' }).getAttribute('value')?.replace(',', '.'),
+    ).toBe('0.2');
   });
 });
