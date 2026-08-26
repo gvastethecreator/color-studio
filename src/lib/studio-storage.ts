@@ -1,4 +1,5 @@
 import { generateHarmonyPalette, isValidHex, normalizeHex } from '@/lib/studio-color';
+import { isRecord, readLocalJson, writeLocalJson, type StoredRead } from '@/lib/persist';
 import type {
   GradientInterpolation,
   GradientStudioState,
@@ -11,12 +12,7 @@ import type {
 } from '@/types/studio';
 
 export const STUDIO_STORAGE_KEY = 'color-studio.workbench.v1';
-
-export interface StoredRead<T> {
-  value: T;
-  /** True when stored data existed but was discarded because it was unreadable. */
-  discarded: boolean;
-}
+export type { StoredRead };
 
 const HARMONIES: HarmonyId[] = [
   'analogous',
@@ -28,9 +24,6 @@ const HARMONIES: HarmonyId[] = [
 const TOOLS: StudioToolId[] = ['palette', 'gradient', 'scale', 'contrast'];
 const GRADIENT_TYPES: GradientType[] = ['linear', 'radial', 'conic'];
 const INTERPOLATIONS: GradientInterpolation[] = ['srgb', 'oklab', 'oklch'];
-
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-  typeof value === 'object' && value !== null && !Array.isArray(value);
 
 const finite = (value: unknown, fallback: number, min: number, max: number): number =>
   typeof value === 'number' && Number.isFinite(value)
@@ -147,14 +140,12 @@ const parseGradient = (value: unknown, defaults: GradientStudioState): GradientS
 
 export const readStoredStudioStateWithStatus = (): StoredRead<StudioState> => {
   const defaults = createDefaultStudioState();
-  if (typeof window === 'undefined' || !window.localStorage) {
-    return { value: defaults, discarded: false };
-  }
+  const stored = readLocalJson(STUDIO_STORAGE_KEY);
+  if (stored.discarded) return { value: defaults, discarded: true };
+  if (stored.value === null) return { value: defaults, discarded: false };
 
   try {
-    const raw = window.localStorage.getItem(STUDIO_STORAGE_KEY);
-    if (!raw) return { value: defaults, discarded: false };
-    const value: unknown = JSON.parse(raw);
+    const value = stored.value;
     if (!isRecord(value)) return { value: defaults, discarded: true };
 
     const contrast = isRecord(value.contrast) ? value.contrast : {};
@@ -198,6 +189,5 @@ export const readStoredStudioStateWithStatus = (): StoredRead<StudioState> => {
 export const readStoredStudioState = (): StudioState => readStoredStudioStateWithStatus().value;
 
 export const writeStoredStudioState = (state: StudioState): void => {
-  if (typeof window === 'undefined' || !window.localStorage) return;
-  window.localStorage.setItem(STUDIO_STORAGE_KEY, JSON.stringify(state));
+  writeLocalJson(STUDIO_STORAGE_KEY, state);
 };

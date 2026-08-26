@@ -2,7 +2,7 @@ import { PRESETS } from '@/data/presets';
 import { parseCustomPresetData } from '@/lib/custom-presets';
 import { COLOR_FORMATS } from '@/lib/color-formats';
 import { isAccentPalette } from '@/lib/accent-palettes';
-import type { StoredRead } from '@/lib/studio-storage';
+import { isRecord, readLocalJson, writeLocalJson, type StoredRead } from '@/lib/persist';
 import { createDefaultSettings } from '@/types/palette';
 import type { GeneratorSettings, PresetRegistry } from '@/types/palette';
 
@@ -10,12 +10,6 @@ export const STORAGE_KEYS = {
   settings: 'color-studio.settings',
   customPresets: 'color-studio.custom-presets',
 } as const;
-
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-  typeof value === 'object' && value !== null && !Array.isArray(value);
-
-const hasStorage = (): boolean =>
-  typeof window !== 'undefined' && typeof window.localStorage !== 'undefined';
 
 const toFiniteNumber = (value: unknown, fallback: number): number =>
   typeof value === 'number' && Number.isFinite(value) ? value : fallback;
@@ -39,19 +33,18 @@ export const ensureAvailablePreset = (
 
 export const readStoredSettingsWithStatus = (): StoredRead<GeneratorSettings> => {
   const defaults = createDefaultSettings();
+  const stored = readLocalJson(STORAGE_KEYS.settings);
 
-  if (!hasStorage()) {
+  if (stored.discarded) {
+    return { value: defaults, discarded: true };
+  }
+
+  if (stored.value === null) {
     return { value: defaults, discarded: false };
   }
 
   try {
-    const raw = window.localStorage.getItem(STORAGE_KEYS.settings);
-
-    if (!raw) {
-      return { value: defaults, discarded: false };
-    }
-
-    const parsed = JSON.parse(raw);
+    const parsed = stored.value;
 
     if (!isRecord(parsed)) {
       return { value: defaults, discarded: true };
@@ -105,27 +98,23 @@ export const readStoredSettingsWithStatus = (): StoredRead<GeneratorSettings> =>
 export const readStoredSettings = (): GeneratorSettings => readStoredSettingsWithStatus().value;
 
 export const writeStoredSettings = (settings: GeneratorSettings): void => {
-  if (!hasStorage()) {
-    return;
-  }
-
-  window.localStorage.setItem(STORAGE_KEYS.settings, JSON.stringify(settings));
+  writeLocalJson(STORAGE_KEYS.settings, settings);
 };
 
 export const readStoredCustomPresetsWithStatus = (): StoredRead<PresetRegistry> => {
-  if (!hasStorage()) {
+  const stored = readLocalJson(STORAGE_KEYS.customPresets);
+
+  if (stored.discarded) {
+    return { value: {}, discarded: true };
+  }
+
+  if (stored.value === null) {
     return { value: {}, discarded: false };
   }
 
   try {
-    const raw = window.localStorage.getItem(STORAGE_KEYS.customPresets);
-
-    if (!raw) {
-      return { value: {}, discarded: false };
-    }
-
     return {
-      value: parseCustomPresetData(JSON.parse(raw), Object.keys(PRESETS)),
+      value: parseCustomPresetData(stored.value, Object.keys(PRESETS)),
       discarded: false,
     };
   } catch {
@@ -137,9 +126,5 @@ export const readStoredCustomPresets = (): PresetRegistry =>
   readStoredCustomPresetsWithStatus().value;
 
 export const writeStoredCustomPresets = (presetRegistry: PresetRegistry): void => {
-  if (!hasStorage()) {
-    return;
-  }
-
-  window.localStorage.setItem(STORAGE_KEYS.customPresets, JSON.stringify(presetRegistry));
+  writeLocalJson(STORAGE_KEYS.customPresets, presetRegistry);
 };
