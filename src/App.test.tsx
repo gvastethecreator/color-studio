@@ -1,9 +1,12 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import App from '@/App';
+import { PRESETS } from '@/data/presets';
 import * as clipboard from '@/lib/clipboard';
+import { generatePalettes } from '@/lib/color';
 import { STORAGE_KEYS } from '@/lib/storage';
 import { STUDIO_STORAGE_KEY } from '@/lib/studio-storage';
+import { createDefaultSettings } from '@/types/palette';
 import { ToastProvider } from '@/components/ui/toast';
 
 describe('App', () => {
@@ -275,9 +278,20 @@ describe('App', () => {
     expect(screen.getByRole('button', { name: /switch to dark theme/i })).toBeInTheDocument();
   });
 
-  it('does not show Untitled color study chrome', () => {
+  it('keeps the seed HEX in the first zero-offset palette slot', () => {
     render(<App />);
-    expect(screen.queryByText(/untitled color study/i)).not.toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /select palette color 1: #6D5DFC/i }),
+    ).toBeInTheDocument();
+  });
+
+  it('adds the selected palette color to the gradient', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole('button', { name: /add to gradient/i }));
+    expect(await screen.findByRole('heading', { name: /gradient lab/i })).toBeInTheDocument();
+    expect(screen.getAllByRole('button', { name: /select stop/i })).toHaveLength(4);
   });
 
   it('restores the previous palette through Generate undo', async () => {
@@ -329,5 +343,50 @@ describe('App', () => {
       'aria-pressed',
       'true',
     );
+  });
+
+  it('uses the mixed color as contrast foreground', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole('button', { name: /^contrast/i }));
+    await user.click(await screen.findByRole('button', { name: /use as foreground/i }));
+    expect(screen.getByLabelText(/^foreground$/i)).toHaveValue('#B66CAB');
+  });
+
+  it('previews perceptual gradient interpolation by default', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole('button', { name: /^gradient/i }));
+    expect(await screen.findByRole('heading', { name: /gradient lab/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Perceptual' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+    await user.click(screen.getByRole('button', { name: 'HEX fallback' }));
+    expect(screen.getByRole('button', { name: 'HEX fallback' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+  });
+
+  it('sends a Scale Lab swatch to Contrast with shift-click', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole('button', { name: /^scale/i }));
+    const swatch = await screen.findByRole(
+      'button',
+      { name: /copy flamingo step 1/i },
+      { timeout: 10_000 },
+    );
+    fireEvent.click(swatch, { shiftKey: true });
+
+    expect(await screen.findByRole('heading', { name: /contrast \+ mix/i })).toBeInTheDocument();
+    const flamingo = generatePalettes(createDefaultSettings(), PRESETS).find(
+      (family) => family.id === 'flamingo',
+    );
+    expect(screen.getByLabelText(/^foreground$/i)).toHaveValue(flamingo?.steps[0]?.hex);
   });
 });

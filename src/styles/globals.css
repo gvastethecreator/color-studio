@@ -1419,6 +1419,11 @@ textarea {
   padding: 1rem;
 }
 
+.gradient-preview-fill {
+  position: absolute;
+  inset: 0;
+}
+
 .gradient-preview-grid {
   position: absolute;
   inset: 0;
@@ -1447,6 +1452,21 @@ textarea {
 
 .gradient-preview-type svg {
   width: 0.85rem;
+}
+
+.gradient-preview-toggle {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 1;
+  width: auto;
+  background: rgba(15, 14, 12, 0.56);
+  backdrop-filter: blur(8px);
+}
+
+.gradient-preview-toggle button {
+  color: #fff;
+  font-size: 0.62rem;
 }
 
 .gradient-stop-track {

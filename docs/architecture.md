@@ -21,15 +21,19 @@ values without a backend.
   - Clipboard copy with a fallback for restricted browsers.
 - `src/lib/file.ts`
   - Direct download of exports as local files.
+- `src/lib/persist.ts`
+  - Browser localStorage JSON adapter used by settings and workbench stores.
 - `src/lib/storage.ts`
   - Persists `GeneratorSettings` and imported presets in `localStorage`.
 - `src/lib/custom-presets.ts`
   - Validates and safely parses user-imported JSON presets.
 - `src/lib/accessibility.ts`
   - Luminance, contrast, and readable text color helpers.
+- `src/lib/color-formats.ts`
+  - Shared HEX, RGB, hue, and OKLCH conversion plus CSS format serializers.
 - `src/lib/studio-color.ts`
-  - HEX/RGB/OKLCH conversion, literal harmony templates, deterministic 5/6
-    color generation, sRGB mixing, and palette CSS/JSON serialization.
+  - Harmony templates, seed-aware palette generation, sRGB mixing, and
+    palette CSS/JSON serialization.
 - `src/lib/gradient.ts`
   - Gradient stop ordering, bounded stop insertion, and compatible/enhanced
     CSS serialization for linear, radial, and conic gradients.
@@ -38,6 +42,10 @@ values without a backend.
     gradient, contrast, and mixer state.
 - `src/types/studio.ts`
   - Workbench domain contracts and tool state.
+- `src/lib/studio-notify.ts`
+  - Toast notify, undo action, and mount defer for ToastProvider.
+- `src/hooks/use-studio-session.ts`
+  - Persisted workbench session, shortcuts, theme, and cross-tool handoff.
 - `src/components/studio/*`
   - Vertical tool slices for navigation, palette, gradient, scale, contrast,
     color input validation, and mix workflows.
@@ -47,7 +55,8 @@ values without a backend.
 
 ## Data flow
 
-1. `App.tsx` owns both existing `GeneratorSettings` and versioned `StudioState`.
+1. `useStudioSession` owns persisted `GeneratorSettings` and versioned
+   `StudioState`. `App.tsx` remains the composition view.
 2. `StudioNavigation` changes only the active tool; each tool's work remains in
    memory and is persisted after meaningful changes.
 3. Palette and gradient components call pure domain functions and emit complete
