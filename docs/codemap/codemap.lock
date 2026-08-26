@@ -1,20 +1,22 @@
 {
-  "source_commit": "ddcc8d02dbfe075fc9b801d3c0d78b9438beac05",
-  "working_tree_dirty": true,
-  "generated_at": "2026-08-15T09:31:20Z",
+  "source_commit": "226bd39e17abaac8e8605216198d20676d972657",
+  "working_tree_dirty": false,
+  "generated_at": "2026-08-26T21:15:00Z",
   "scanned_scope": [
     "."
   ],
   "excluded_directories": [
+    ".agents",
     ".cache",
     ".git",
     ".hg",
     ".next",
     ".nuxt",
-    ".scratch",
+    ".obsidian",
     ".svn",
     ".turbo",
     ".venv",
+    ".vscode",
     "__pycache__",
     "build",
     "coverage",
@@ -27,49 +29,43 @@
     "vendor",
     "venv"
   ],
-  "fingerprint_algorithm": "sha256-path-content-v1",
+  "fingerprint_algorithm": "sha256-path-content-v2",
   "modules": [
     {
       "id": ".",
       "path": ".",
       "file_count": 12,
-      "fingerprint": "1f87df0a6a649ee0ed98bb5bcbb5a919a8be5ff2e522532644bd30db734a8348"
+      "fingerprint": "dab0d8e66de4c3c49bb26ab2ec369a3670d08caf8f367ceefcc21f867b3b94f0"
     },
     {
       "id": ".github",
       "path": ".github",
-      "file_count": 2,
-      "fingerprint": "b80dcbca7a2c78cd21c5aaef7056a32b62eff823b225b0949eafb0db185f068f"
-    },
-    {
-      "id": ".vscode",
-      "path": ".vscode",
-      "file_count": 2,
-      "fingerprint": "fffa41ed98d12690f566b27f35ac4af603097c203df6c2f128b493d31897a4c3"
+      "file_count": 3,
+      "fingerprint": "c93dda554c67fa4e61a79615fa4f5dc1a667b383b42ceb078446cf5e13cf7471"
     },
     {
       "id": "docs",
       "path": "docs",
-      "file_count": 14,
-      "fingerprint": "5dce5c36788120650987983fe50e4adc0c7f2c57420c06c156cbc03da0f02b0e"
+      "file_count": 20,
+      "fingerprint": "e0568fdf0f74527dfc779bff753c16fdee7636c02382dd32093fd2087c60d553"
     },
     {
       "id": "public",
       "path": "public",
       "file_count": 1,
-      "fingerprint": "0db691febec050ecb8eee2822d6946754cfb5b94d17ab04212757684abac6eb5"
+      "fingerprint": "3c85b97caba1d09bb3418675efd88571ec6e685dbfb9f3303964bbfaff2ed990"
     },
     {
       "id": "scripts",
       "path": "scripts",
       "file_count": 2,
-      "fingerprint": "8497f651e1e6d9a4cd38b5772345abf1c16ee57b3c2a8e90a3f68b3eb2676939"
+      "fingerprint": "dab69678f485efe31825c170deaec0b773020b75d6e6b84c59c39948d33f84fb"
     },
     {
       "id": "src",
       "path": "src",
-      "file_count": 129,
-      "fingerprint": "3bdc082ba6bf08c8ff914e791ac25f853d79dc8aedc1a0608dfa69b6efc99cd2"
+      "file_count": 82,
+      "fingerprint": "87100830313607ea02df705d7b4b31eecf4d180a727bf7f6f280db5ec3b9aeea"
     }
   ]
 }
