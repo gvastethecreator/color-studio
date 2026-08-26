@@ -133,15 +133,16 @@ export function PaletteComposer({
             >
               <span>Canvas</span>
               <strong style={{ color: state.colors[2] }}>Color decisions, visible.</strong>
-              <button
-                type="button"
+              <span
+                className="role-preview-action"
+                aria-hidden="true"
                 style={{
                   backgroundColor: state.colors[state.colors.length - 1],
                   color: getReadableTextColor(state.colors[state.colors.length - 1] ?? '#000000'),
                 }}
               >
                 Primary action
-              </button>
+              </span>
             </div>
             <p className="studio-caption">
               Preview maps colors to roles; verify final pairs in Contrast.

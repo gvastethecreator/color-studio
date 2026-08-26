@@ -78,12 +78,13 @@ export function ContrastTool({
               This paragraph uses the exact foreground and background pair selected in the
               inspector.
             </p>
-            <button
-              type="button"
+            <span
+              className="contrast-preview-control"
+              aria-hidden="true"
               style={{ borderColor: contrast.foreground, color: contrast.foreground }}
             >
               Interface control
-            </button>
+            </span>
           </article>
 
           <article className="contrast-score-card">

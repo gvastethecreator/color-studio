@@ -1151,7 +1151,8 @@ textarea {
   line-height: 1.1;
 }
 
-.role-preview-surface button {
+.role-preview-surface .role-preview-action {
+  display: inline-flex;
   width: max-content;
   border: 0;
   border-radius: 0.4rem;
@@ -1627,7 +1628,8 @@ textarea {
   opacity: 0.78;
 }
 
-.contrast-preview-card button {
+.contrast-preview-card .contrast-preview-control {
+  display: inline-flex;
   width: max-content;
   margin-top: 1.5rem;
   border: 1px solid;
