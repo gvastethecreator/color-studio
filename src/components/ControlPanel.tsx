@@ -1,12 +1,11 @@
 import { useRef } from 'react';
 import type { ChangeEvent, Dispatch, SetStateAction } from 'react';
 import {
-  IconBrandGithub,
   IconFileUpload,
   IconRotate,
   IconAdjustments,
   IconAdjustmentsHorizontal,
-  IconSparkles,
+  IconTrash,
 } from '@tabler/icons-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -28,28 +27,20 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { Slider, SliderValue } from '@/components/ui/slider';
 import { useDebouncedCommit } from '@/hooks/use-debounced-commit';
-import { BrandLogo } from '@/components/BrandLogo';
 import { PRESETS } from '@/data/presets';
 import { DEFAULT_OVERRIDE } from '@/types/palette';
-import type {
-  AccentPaletteId,
-  FamilyOverride,
-  GeneratorSettings,
-  PresetRegistry,
-} from '@/types/palette';
+import type { FamilyOverride, GeneratorSettings, PresetRegistry } from '@/types/palette';
 
 interface ControlPanelProps {
-  embedded?: boolean;
   settings: GeneratorSettings;
   setSettings: Dispatch<SetStateAction<GeneratorSettings>>;
   onReset: () => void;
   activeFamilyId: string;
   activeFamilyDisplayName: string;
   presetOptions?: PresetRegistry;
-  customPresetCount?: number;
+  customPresetIds?: string[];
   onImportPreset?: (file: File) => Promise<void> | void;
-  accentPalette?: AccentPaletteId;
-  onCycleAccent?: () => void;
+  onRemovePreset?: (presetId: string) => void;
 }
 
 type OverrideKey = keyof Pick<FamilyOverride, 'hueShift' | 'chromaScale' | 'lightnessScale'>;
@@ -274,36 +265,16 @@ function FamilyOverrideSection({
   );
 }
 
-function ControlPanelFooter() {
-  return (
-    <div className="flex items-center justify-between border-t border-border/50 pt-3 text-[10px] text-muted-foreground bottom-0 absolute w-auto gap-4 p-4 bg-accent/80 end-px rounded-tl-xl">
-      <span className="font-semibold">&copy; gvastethecreator</span>
-      <a
-        href="https://github.com/gvastethecreator/color-studio"
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label="View source on GitHub"
-        className="inline-flex items-center gap-1 rounded-sm transition-colors hover:text-foreground"
-      >
-        <IconBrandGithub aria-hidden="true" className="size-3.5" />
-        Source
-      </a>
-    </div>
-  );
-}
-
 export default function ControlPanel({
-  embedded = false,
   settings,
   setSettings,
   onReset,
   activeFamilyId,
   activeFamilyDisplayName,
   presetOptions = PRESETS,
-  customPresetCount = 0,
+  customPresetIds = [],
   onImportPreset,
-  accentPalette = 'neutral',
-  onCycleAccent = () => undefined,
+  onRemovePreset,
 }: ControlPanelProps) {
   const currentOverride = settings.overrides[activeFamilyId] ?? DEFAULT_OVERRIDE;
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -395,29 +366,10 @@ export default function ControlPanel({
     currentOverride.chromaScale !== 1 ||
     currentOverride.lightnessScale !== 1;
 
-  return (
-    <aside
-      className={
-        embedded
-          ? 'scale-inspector flex w-full shrink-0 flex-col gap-4 overflow-y-auto border-border bg-card/40 p-3 text-[11px] leading-tight'
-          : 'relative flex w-full shrink-0 flex-col gap-4 overflow-y-auto border-b border-border bg-card/40 p-3 text-[11px] leading-tight md:h-dvh md:w-72 md:border-r md:border-b-0'
-      }
-    >
-      {!embedded && (
-        <header className="flex items-center justify-between gap-2" data-animate="enter">
-          <div className="flex items-center gap-1.5">
-            <BrandLogo paletteId={accentPalette} onCycle={onCycleAccent} />
-            <h1 className="font-heading text-sm font-semibold tracking-tight">Color Studio</h1>
-          </div>
-          {customPresetCount > 0 && (
-            <Badge variant="secondary" size="sm">
-              <IconSparkles aria-hidden="true" />
-              {customPresetCount}
-            </Badge>
-          )}
-        </header>
-      )}
+  const canRemoveActive = customPresetIds.includes(settings.preset);
 
+  return (
+    <aside className="scale-inspector flex w-full shrink-0 flex-col gap-4 overflow-y-auto border-border bg-card/40 p-3 text-[11px] leading-tight">
       <Field className="mt-2" data-animate="enter">
         <div className="flex items-center gap-1">
           <FieldLabel className="text-[10px]">Palette</FieldLabel>
@@ -470,6 +422,19 @@ export default function ControlPanel({
           >
             <IconFileUpload aria-hidden="true" />
           </Button>
+          {canRemoveActive && (
+            <Button
+              type="button"
+              size="icon-sm"
+              variant="outline"
+              onClick={() => onRemovePreset?.(settings.preset)}
+              disabled={!onRemovePreset}
+              aria-label="Remove custom preset"
+              title="Remove custom preset"
+            >
+              <IconTrash aria-hidden="true" />
+            </Button>
+          )}
         </div>
       </Field>
 
@@ -503,8 +468,6 @@ export default function ControlPanel({
         <IconRotate aria-hidden="true" />
         Reset all
       </Button>
-
-      {!embedded && <ControlPanelFooter />}
     </aside>
   );
 }
