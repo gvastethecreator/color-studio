@@ -124,7 +124,13 @@ export default function App() {
 
   useEffect(() => writeStoredSettings(settings), [settings]);
   useEffect(() => writeStoredCustomPresets(customPresets), [customPresets]);
-  useEffect(() => writeStoredStudioState(studio), [studio]);
+  const studioRef = useRef(studio);
+  studioRef.current = studio;
+  useEffect(() => {
+    const timer = window.setTimeout(() => writeStoredStudioState(studioRef.current), 280);
+    return () => window.clearTimeout(timer);
+  }, [studio]);
+  useEffect(() => () => writeStoredStudioState(studioRef.current), []);
   useEffect(() => applyTheme(settings.theme), [settings.theme]);
 
   useEffect(() => {
