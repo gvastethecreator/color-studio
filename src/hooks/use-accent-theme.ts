@@ -2,18 +2,13 @@
 
 import { useEffect } from 'react';
 import { findAccentPalette } from '@/lib/accent-palettes';
+import { hexToRgb } from '@/lib/color-formats';
 import type { AccentPaletteId } from '@/types/palette';
 
 const ACCENT_TRANSITION_MS = 600;
 
 const toRgbaTuple = (hex: string): string => {
-  const sanitized = hex.replace('#', '').trim();
-  if (!/^[0-9a-f]{6}$/i.test(sanitized)) {
-    return '0 0 0';
-  }
-  const r = Number.parseInt(sanitized.slice(0, 2), 16);
-  const g = Number.parseInt(sanitized.slice(2, 4), 16);
-  const b = Number.parseInt(sanitized.slice(4, 6), 16);
+  const { r, g, b } = hexToRgb(hex);
   return `${r} ${g} ${b}`;
 };
 

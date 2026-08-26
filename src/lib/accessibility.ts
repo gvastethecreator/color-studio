@@ -1,16 +1,4 @@
-const hexToRgb = (hex: string): [number, number, number] => {
-  const sanitized = hex.replace('#', '').trim();
-
-  if (!/^[0-9a-f]{6}$/i.test(sanitized)) {
-    throw new Error(`Invalid HEX color: ${hex}`);
-  }
-
-  return [0, 2, 4].map((offset) => Number.parseInt(sanitized.slice(offset, offset + 2), 16)) as [
-    number,
-    number,
-    number,
-  ];
-};
+import { hexToRgb, isValidHex } from '@/lib/color-formats';
 
 const toLinearChannel = (value: number): number => {
   const channel = value / 255;
@@ -18,7 +6,11 @@ const toLinearChannel = (value: number): number => {
 };
 
 export const getRelativeLuminance = (hex: string): number => {
-  const [red, green, blue] = hexToRgb(hex);
+  if (!isValidHex(hex)) {
+    throw new Error(`Invalid HEX color: ${hex}`);
+  }
+
+  const { r: red, g: green, b: blue } = hexToRgb(hex);
 
   return (
     0.2126 * toLinearChannel(red) + 0.7152 * toLinearChannel(green) + 0.0722 * toLinearChannel(blue)
