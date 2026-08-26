@@ -1,12 +1,15 @@
 import { useEffect, useMemo, useState } from 'react';
+import type { KeyboardEvent } from 'react';
 import {
   IconBraces,
   IconContrast2,
   IconCopy,
+  IconGradienter,
   IconRefresh,
   IconSparkles,
   IconTargetArrow,
 } from '@tabler/icons-react';
+import { NumberField, NumberFieldGroup, NumberFieldInput } from '@/components/ui/number-field';
 import { getReadableTextColor } from '@/lib/accessibility';
 import {
   formatHexAsOklch,
@@ -17,13 +20,15 @@ import {
   normalizeHex,
 } from '@/lib/studio-color';
 import { ColorField } from '@/components/studio/ColorField';
-import type { PaletteComposerState } from '@/types/studio';
+import type { PaletteComposerState, StudioNotify } from '@/types/studio';
 
 interface PaletteComposerProps {
   state: PaletteComposerState;
   onChange: (state: PaletteComposerState) => void;
   onCopy: (text: string, label: string) => void;
   onTestInContrast?: (color: string) => void;
+  onAddToGradient?: (color: string) => void;
+  onNotify?: StudioNotify;
 }
 
 export function PaletteComposer({
@@ -31,6 +36,8 @@ export function PaletteComposer({
   onChange,
   onCopy,
   onTestInContrast,
+  onAddToGradient,
+  onNotify,
 }: PaletteComposerProps) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const selectedColor = state.colors[selectedIndex] ?? state.colors[0] ?? state.seed;
@@ -51,10 +58,44 @@ export function PaletteComposer({
     });
   };
 
+  const generate = () => {
+    const previous = state;
+    onChange({
+      ...state,
+      colors: generateHarmonyPalette(state),
+    });
+    onNotify?.('Palette generated.', { undo: () => onChange(previous) });
+  };
+
   const updateSelectedColor = (color: string) => {
     const colors = [...state.colors];
     colors[selectedIndex] = normalizeHex(color);
     onChange({ ...state, colors });
+  };
+
+  const moveSelection = (event: KeyboardEvent<HTMLButtonElement>, index: number) => {
+    let nextIndex = index;
+    switch (event.key) {
+      case 'ArrowRight':
+        nextIndex = Math.min(index + 1, state.colors.length - 1);
+        break;
+      case 'ArrowLeft':
+        nextIndex = Math.max(index - 1, 0);
+        break;
+      case 'Home':
+        nextIndex = 0;
+        break;
+      case 'End':
+        nextIndex = state.colors.length - 1;
+        break;
+      default:
+        return;
+    }
+    event.preventDefault();
+    setSelectedIndex(nextIndex);
+    const buttons =
+      event.currentTarget.parentElement?.querySelectorAll<HTMLButtonElement>('.chromatic-swatch');
+    buttons?.[nextIndex]?.focus();
   };
 
   return (
@@ -73,7 +114,7 @@ export function PaletteComposer({
             <button
               className="studio-button studio-button-primary"
               type="button"
-              onClick={() => regenerate()}
+              onClick={generate}
             >
               <IconRefresh aria-hidden="true" />
               Generate
@@ -102,6 +143,7 @@ export function PaletteComposer({
                   aria-pressed={active}
                   aria-label={`Select palette color ${index + 1}: ${color}`}
                   onClick={() => setSelectedIndex(index)}
+                  onKeyDown={(event) => moveSelection(event, index)}
                 >
                   <span className="chromatic-swatch-index">
                     {String(index + 1).padStart(2, '0')}
@@ -198,6 +240,16 @@ export function PaletteComposer({
                   Test in Contrast
                 </button>
               )}
+              {onAddToGradient && (
+                <button
+                  type="button"
+                  className="studio-button"
+                  onClick={() => onAddToGradient(selectedColor)}
+                >
+                  <IconGradienter aria-hidden="true" />
+                  Add to gradient
+                </button>
+              )}
             </div>
           </article>
         </div>
@@ -217,7 +269,7 @@ export function PaletteComposer({
           label="Seed color"
           value={state.seed}
           onChange={(seed) => regenerate({ seed })}
-          hint="The hue anchor for every generated relationship."
+          hint="The first matching hue slot keeps this HEX. Other colors follow chroma and lightness."
         />
 
         <div className="studio-field">
@@ -258,37 +310,74 @@ export function PaletteComposer({
           </div>
         </fieldset>
 
-        <label className="studio-range-field" htmlFor="palette-chroma">
+        <div className="studio-range-field">
           <span>
             <span>Chroma</span>
-            <output>{state.chroma.toFixed(2)}</output>
+            <NumberField
+              className="w-auto flex-row items-center gap-0"
+              value={Number(state.chroma.toFixed(2))}
+              min={0.04}
+              max={0.29}
+              step={0.01}
+              onValueChange={(value) => {
+                if (typeof value === 'number') {
+                  regenerate({ chroma: value });
+                }
+              }}
+            >
+              <NumberFieldGroup className="h-6 w-[4.25rem] border-border/60 bg-transparent">
+                <NumberFieldInput
+                  aria-label="Chroma"
+                  className="font-mono text-[10.5px] text-foreground h-full py-0 leading-6.5 text-center"
+                />
+              </NumberFieldGroup>
+            </NumberField>
           </span>
           <input
             id="palette-chroma"
             type="range"
+            aria-label="Chroma"
             min="0.04"
             max="0.29"
             step="0.01"
             value={state.chroma}
             onChange={(event) => regenerate({ chroma: Number(event.target.value) })}
           />
-        </label>
+        </div>
 
-        <label className="studio-range-field" htmlFor="palette-lightness">
+        <div className="studio-range-field">
           <span>
             <span>Lightness</span>
-            <output>{Math.round(state.lightness * 100)}%</output>
+            <NumberField
+              className="w-auto flex-row items-center gap-0"
+              value={Math.round(state.lightness * 100)}
+              min={35}
+              max={85}
+              onValueChange={(value) => {
+                if (typeof value === 'number') {
+                  regenerate({ lightness: value / 100 });
+                }
+              }}
+            >
+              <NumberFieldGroup className="h-6 w-[4.25rem] border-border/60 bg-transparent">
+                <NumberFieldInput
+                  aria-label="Lightness in percent"
+                  className="font-mono text-[10.5px] text-foreground h-full py-0 leading-6.5 text-center"
+                />
+              </NumberFieldGroup>
+            </NumberField>
           </span>
           <input
             id="palette-lightness"
             type="range"
+            aria-label="Lightness"
             min="0.35"
             max="0.85"
             step="0.01"
             value={state.lightness}
             onChange={(event) => regenerate({ lightness: Number(event.target.value) })}
           />
-        </label>
+        </div>
 
         <div className="studio-inspector-divider" />
 
