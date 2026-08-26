@@ -31,6 +31,7 @@ describe('studio color domain', () => {
 
     expect(five).toHaveLength(5);
     expect(six).toHaveLength(6);
+    expect(five[0]).toBe('#6D5DFC');
     expect(generateHarmonyPalette({ ...base, count: 5 })).toEqual(five);
     expect(five.every((color) => /^#[0-9A-F]{6}$/.test(color))).toBe(true);
   });

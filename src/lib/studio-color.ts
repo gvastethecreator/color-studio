@@ -113,7 +113,12 @@ export const generateHarmonyPalette = ({
   const lightnessOffsets = LIGHTNESS_OFFSETS[count];
   const chromaFactors = CHROMA_FACTORS[count];
 
+  let usedSeedSlot = false;
   return offsets.map((offset, index) => {
+    if (offset === 0 && !usedSeedSlot) {
+      usedSeedSlot = true;
+      return normalizeHex(seed);
+    }
     const resolvedLightness = clamp(lightness + (lightnessOffsets[index] ?? 0), 0.28, 0.92);
     const resolvedChroma = clamp(chroma * (chromaFactors[index] ?? 1), 0.025, 0.29);
     return oklchToHex(resolvedLightness, resolvedChroma, normalizeHue(seedColor.h + offset));
