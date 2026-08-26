@@ -274,4 +274,9 @@ describe('App', () => {
     expect(document.documentElement).not.toHaveClass('dark');
     expect(screen.getByRole('button', { name: /switch to dark theme/i })).toBeInTheDocument();
   });
+
+  it('does not show Untitled color study chrome', () => {
+    render(<App />);
+    expect(screen.queryByText(/untitled color study/i)).not.toBeInTheDocument();
+  });
 });
