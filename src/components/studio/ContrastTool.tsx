@@ -179,6 +179,20 @@ export function ContrastTool({
               <IconDropletHalf2 aria-hidden="true" />
               Copy Oklab mix
             </button>
+            <button
+              type="button"
+              className="studio-button"
+              onClick={() => onContrastChange({ ...contrast, foreground: mixed })}
+            >
+              Use as foreground
+            </button>
+            <button
+              type="button"
+              className="studio-button"
+              onClick={() => onContrastChange({ ...contrast, background: mixed })}
+            >
+              Use as background
+            </button>
           </div>
         </article>
       </div>
