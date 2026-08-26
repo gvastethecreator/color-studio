@@ -1,7 +1,13 @@
+import { useRef, useState, type PointerEvent } from 'react';
 import { IconBraces, IconCopy, IconGradienter, IconPlus, IconTrash } from '@tabler/icons-react';
 import { ColorField } from '@/components/studio/ColorField';
 import { NumberField, NumberFieldGroup, NumberFieldInput } from '@/components/ui/number-field';
-import { buildGradientCss, createStopInLargestGap, sortGradientStops } from '@/lib/gradient';
+import {
+  buildGradientCss,
+  createStopId,
+  createStopInLargestGap,
+  sortGradientStops,
+} from '@/lib/gradient';
 import type { GradientStudioState, GradientType, StudioNotify } from '@/types/studio';
 
 interface GradientEditorProps {
@@ -17,18 +23,15 @@ const TYPE_OPTIONS: Array<{ id: GradientType; label: string }> = [
   { id: 'conic', label: 'Conic' },
 ];
 
-let stopSequence = 0;
-
-function createStopId() {
-  stopSequence += 1;
-  return `stop-${Date.now()}-${stopSequence}`;
-}
-
 export function GradientEditor({ state, onChange, onCopy, onNotify }: GradientEditorProps) {
   const stops = sortGradientStops(state.stops);
   const selectedStop = stops.find((stop) => stop.id === state.selectedStopId) ?? stops[0];
   const compatibleCss = buildGradientCss(state);
   const enhancedCss = buildGradientCss(state, true);
+  const [previewEnhanced, setPreviewEnhanced] = useState(state.interpolation !== 'srgb');
+  const stateRef = useRef(state);
+  stateRef.current = state;
+  const previewCss = buildGradientCss(state, previewEnhanced);
   const canAdd = stops.length < 8;
   const canRemove = stops.length > 2;
 
@@ -40,6 +43,37 @@ export function GradientEditor({ state, onChange, onCopy, onNotify }: GradientEd
         stop.id === selectedStop.id ? { ...stop, ...patch } : stop,
       ),
     });
+  };
+
+  const dragStop = (event: PointerEvent<HTMLButtonElement>, stopId: string) => {
+    const track = event.currentTarget.parentElement;
+    if (!track) return;
+    event.preventDefault();
+    event.currentTarget.setPointerCapture(event.pointerId);
+    const handle = event.currentTarget;
+    const updateFromClientX = (clientX: number) => {
+      const rect = track.getBoundingClientRect();
+      const width = rect.width || 1;
+      const position = Math.min(
+        100,
+        Math.max(0, Math.round(((clientX - rect.left) / width) * 100)),
+      );
+      const current = stateRef.current;
+      onChange({
+        ...current,
+        selectedStopId: stopId,
+        stops: current.stops.map((stop) => (stop.id === stopId ? { ...stop, position } : stop)),
+      });
+    };
+    updateFromClientX(event.clientX);
+    const onMove = (moveEvent: PointerEvent) => updateFromClientX(moveEvent.clientX);
+    const onUp = () => {
+      handle.releasePointerCapture(event.pointerId);
+      handle.removeEventListener('pointermove', onMove);
+      handle.removeEventListener('pointerup', onUp);
+    };
+    handle.addEventListener('pointermove', onMove);
+    handle.addEventListener('pointerup', onUp);
   };
 
   const addStop = () => {
@@ -98,21 +132,43 @@ export function GradientEditor({ state, onChange, onCopy, onNotify }: GradientEd
         </header>
 
         <div className="gradient-stage">
-          <div
-            className="gradient-preview"
-            style={{ backgroundImage: compatibleCss }}
-            role="img"
-            aria-label={`${state.type} gradient preview with ${stops.length} color stops`}
-          >
+          <div className="gradient-preview">
+            <div
+              className="gradient-preview-fill"
+              style={{ backgroundImage: previewCss }}
+              role="img"
+              aria-label={`${state.type} gradient preview with ${stops.length} color stops`}
+            />
             <div className="gradient-preview-grid" aria-hidden="true" />
             <span className="gradient-preview-type">
               <IconGradienter aria-hidden="true" />
-              {state.type} · {state.interpolation}
+              {state.type} · {previewEnhanced ? state.interpolation : 'hex'}
             </span>
+            <div
+              className="studio-segmented gradient-preview-toggle"
+              aria-label="Preview interpolation"
+            >
+              <button
+                type="button"
+                data-active={!previewEnhanced || undefined}
+                aria-pressed={!previewEnhanced}
+                onClick={() => setPreviewEnhanced(false)}
+              >
+                HEX fallback
+              </button>
+              <button
+                type="button"
+                data-active={previewEnhanced || undefined}
+                aria-pressed={previewEnhanced}
+                onClick={() => setPreviewEnhanced(true)}
+              >
+                Perceptual
+              </button>
+            </div>
           </div>
 
           <div className="gradient-stop-track" aria-label="Gradient stop positions">
-            <div className="gradient-stop-line" style={{ backgroundImage: compatibleCss }} />
+            <div className="gradient-stop-line" style={{ backgroundImage: previewCss }} />
             {stops.map((stop, index) => (
               <button
                 key={stop.id}
@@ -124,7 +180,7 @@ export function GradientEditor({ state, onChange, onCopy, onNotify }: GradientEd
                 }
                 aria-label={`Select stop ${index + 1}, ${stop.color} at ${stop.position}%`}
                 aria-pressed={stop.id === selectedStop?.id}
-                onClick={() => onChange({ ...state, selectedStopId: stop.id })}
+                onPointerDown={(event) => dragStop(event, stop.id)}
               >
                 <span>{stop.position}</span>
               </button>
@@ -270,7 +326,7 @@ export function GradientEditor({ state, onChange, onCopy, onNotify }: GradientEd
             <option value="oklch">OKLCH · vivid hue</option>
           </select>
           <span className="studio-field-hint">
-            Preview uses compatible HEX CSS. Perceptual output is provided separately.
+            The large preview can show HEX fallback or the selected interpolation.
           </span>
         </div>
 
