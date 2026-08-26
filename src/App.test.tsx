@@ -318,4 +318,16 @@ describe('App', () => {
       screen.getByRole('textbox', { name: 'Chroma' }).getAttribute('value')?.replace(',', '.'),
     ).toBe('0.2');
   });
+
+  it('moves palette selection with arrow keys', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    screen.getByRole('button', { name: /select palette color 1/i }).focus();
+    await user.keyboard('{ArrowRight}');
+    expect(screen.getByRole('button', { name: /select palette color 2/i })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+  });
 });
