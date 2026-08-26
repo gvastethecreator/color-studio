@@ -13,9 +13,15 @@ import {
   formatRgb,
   formatRgba,
   formatHsla,
+  hexToOklch,
+  hexToRgb,
   isColorFormat,
+  isValidHex,
+  normalizeHex,
+  normalizeHue,
   oklchToHex,
   oklchToRgb,
+  rgbToHex,
 } from '@/lib/color-formats';
 
 const SAMPLE = { l: 0.62, c: 0.18, h: 28 };
@@ -30,6 +36,15 @@ describe('color-format helpers', () => {
     expect(isColorFormat('oklch')).toBe(true);
     expect(isColorFormat('rgb')).toBe(true);
     expect(isColorFormat('nope')).toBe(false);
+  });
+
+  it('normalizes HEX, hue, and RGB at one seam', () => {
+    expect(normalizeHex('#7af')).toBe('#77AAFF');
+    expect(isValidHex('#6D5DFC')).toBe(true);
+    expect(normalizeHue(-30)).toBe(330);
+    expect(hexToRgb('#FF0000')).toEqual({ r: 255, g: 0, b: 0 });
+    expect(rgbToHex(255, 0, 0)).toBe('#FF0000');
+    expect(hexToOklch('#000000').c).toBe(0);
   });
 
   it('formats OKLCH with three-decimal channels', () => {

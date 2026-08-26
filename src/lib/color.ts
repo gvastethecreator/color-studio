@@ -1,5 +1,10 @@
 import { BASELINE_CURVE, PRESETS } from '@/data/presets';
-import { formatOklch, oklchToHex as oklchToHexImpl } from '@/lib/color-formats';
+import {
+  formatOklch,
+  hexToOklch,
+  normalizeHue,
+  oklchToHex as oklchToHexImpl,
+} from '@/lib/color-formats';
 import { DEFAULT_OVERRIDE } from '@/types/palette';
 import type {
   ColorFamily,
@@ -12,10 +17,7 @@ import type {
 const clamp = (value: number, min: number, max: number): number =>
   Math.min(Math.max(value, min), max);
 
-export const normalizeHue = (hue: number): number => {
-  const normalized = hue % 360;
-  return normalized < 0 ? normalized + 360 : normalized;
-};
+export { normalizeHue };
 
 export const oklchToHex = oklchToHexImpl;
 
@@ -68,43 +70,6 @@ const computeSteps = (
       hex: oklchToHex(l, c, effectiveHue),
     };
   });
-};
-
-const hexToOklch = (hex: string): { l: number; c: number; h: number } => {
-  const sanitized = hex.replace('#', '').trim();
-
-  if (!/^[0-9a-f]{6}$/i.test(sanitized)) {
-    return { l: 0.5, c: 0, h: 0 };
-  }
-
-  const r = Number.parseInt(sanitized.slice(0, 2), 16) / 255;
-  const g = Number.parseInt(sanitized.slice(2, 4), 16) / 255;
-  const b = Number.parseInt(sanitized.slice(4, 6), 16) / 255;
-
-  const toLinear = (value: number): number =>
-    value <= 0.04045 ? value / 12.92 : Math.pow((value + 0.055) / 1.055, 2.4);
-
-  const lr = toLinear(r);
-  const lg = toLinear(g);
-  const lb = toLinear(b);
-
-  const l = 0.4122214708 * lr + 0.5363325363 * lg + 0.0514459929 * lb;
-  const m = 0.2119034982 * lr + 0.6806995451 * lg + 0.1073969566 * lb;
-  const s = 0.0883024619 * lr + 0.2817188376 * lg + 0.6299787005 * lb;
-
-  const lCube = Math.cbrt(l);
-  const mCube = Math.cbrt(m);
-  const sCube = Math.cbrt(s);
-
-  const L = 0.2104542553 * lCube + 0.793617785 * mCube - 0.0040720468 * sCube;
-  const a = 1.9779984951 * lCube - 2.428592205 * mCube + 0.4505937099 * sCube;
-  const bOk = 0.0259040371 * lCube + 0.7827717662 * mCube - 0.808675766 * sCube;
-
-  const chroma = Math.hypot(a, bOk);
-  let hue = (Math.atan2(bOk, a) * 180) / Math.PI;
-  if (hue < 0) hue += 360;
-
-  return { l: L, c: chroma, h: hue };
 };
 
 const computeStepsFromHex = (
