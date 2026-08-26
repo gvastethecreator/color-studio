@@ -10,29 +10,29 @@ import type { PaletteViewMode } from '@/components/ViewModeSelector';
 import { Button } from '@/components/ui/button';
 import { generatePalettes, getSafeActiveFamily } from '@/lib/color';
 import { createDefaultSettings } from '@/types/palette';
-import type { AccentPaletteId, GeneratorSettings, PresetRegistry } from '@/types/palette';
+import type { GeneratorSettings, PresetRegistry } from '@/types/palette';
 import type { StudioNotify } from '@/types/studio';
 
 interface ScaleWorkspaceProps {
   settings: GeneratorSettings;
   setSettings: React.Dispatch<React.SetStateAction<GeneratorSettings>>;
   presetRegistry: PresetRegistry;
-  customPresetCount: number;
+  customPresetIds: string[];
   onImportPreset: (file: File) => Promise<void> | void;
-  accentPalette: AccentPaletteId;
-  onCycleAccent: () => void;
+  onRemovePreset: (presetId: string) => void;
   onNotify: StudioNotify;
+  onTestInContrast: (color: string) => void;
 }
 
 export function ScaleWorkspace({
   settings,
   setSettings,
   presetRegistry,
-  customPresetCount,
+  customPresetIds,
   onImportPreset,
-  accentPalette,
-  onCycleAccent,
+  onRemovePreset,
   onNotify,
+  onTestInContrast,
 }: ScaleWorkspaceProps) {
   const [activeView, setActiveView] = useState<'palette' | 'preview'>('palette');
   const [paletteView, setPaletteView] = useState<PaletteViewMode>('rows');
@@ -76,17 +76,15 @@ export function ScaleWorkspace({
   return (
     <section className="scale-studio" aria-labelledby="scale-title">
       <ControlPanel
-        embedded
         settings={settings}
         setSettings={setSettings}
         onReset={resetScaleSettings}
         activeFamilyId={activeFamily.id}
         activeFamilyDisplayName={activeFamily.name}
         presetOptions={presetRegistry}
-        customPresetCount={customPresetCount}
+        customPresetIds={customPresetIds}
         onImportPreset={onImportPreset}
-        accentPalette={accentPalette}
-        onCycleAccent={onCycleAccent}
+        onRemovePreset={onRemovePreset}
       />
 
       <div className="scale-canvas">
@@ -151,6 +149,7 @@ export function ScaleWorkspace({
             copiedSwatchId={copiedSwatchId}
             onCopySwatch={setCopiedSwatchId}
             viewMode={paletteView}
+            onTestInContrast={onTestInContrast}
           />
         ) : (
           <div className="scale-preview-wrap">
