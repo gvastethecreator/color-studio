@@ -15,6 +15,7 @@ interface SwatchButtonProps {
   colorFormat: ColorFormat;
   copiedSwatchId: string | null;
   onCopy: (text: string, copyId: string, familyId: string) => void;
+  onTestInContrast?: (color: string) => void;
   onSelect: (familyId: string) => void;
   onKeyDown: (
     event: KeyboardEvent<HTMLButtonElement>,
@@ -43,6 +44,7 @@ export function SwatchButton({
   colorFormat,
   copiedSwatchId,
   onCopy,
+  onTestInContrast,
   onSelect,
   onKeyDown,
   size = 'default',
@@ -69,7 +71,7 @@ export function SwatchButton({
             type="button"
             data-family-id={family.id}
             data-swatch-index={stepIndex}
-            aria-label={`Copy ${family.name} step ${step.step} value ${copyValue}`}
+            aria-label={`Copy ${family.name} step ${step.step} value ${copyValue}. Shift-click to test in Contrast.`}
             className={`${SWATCH_BASE_CLASSES} ${SIZE_CLASSES[size]}`}
             style={{
               backgroundColor: step.css,
@@ -79,6 +81,10 @@ export function SwatchButton({
             onClick={(event: MouseEvent<HTMLButtonElement>) => {
               event.preventDefault();
               event.stopPropagation();
+              if (event.shiftKey && onTestInContrast) {
+                onTestInContrast(step.hex);
+                return;
+              }
               void handleCopy();
             }}
             onKeyDown={(event) => onKeyDown(event, familyIndex, stepIndex)}

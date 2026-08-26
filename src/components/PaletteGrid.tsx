@@ -17,6 +17,7 @@ interface PaletteGridProps {
   copiedSwatchId: string | null;
   onCopySwatch: (copyId: string) => void;
   viewMode: PaletteViewMode;
+  onTestInContrast?: (color: string) => void;
 }
 
 const findSwatchButton = (familyId: string, stepIndex: number): HTMLButtonElement | null =>
@@ -52,6 +53,7 @@ export default function PaletteGrid({
   copiedSwatchId,
   onCopySwatch,
   viewMode,
+  onTestInContrast,
 }: PaletteGridProps) {
   const handleCopy = useCallback(
     (text: string, copyId: string) => {
@@ -146,6 +148,7 @@ export default function PaletteGrid({
           onSelectFamily={onSelectFamily}
           copiedSwatchId={copiedSwatchId}
           onCopy={handleCopy}
+          onTestInContrast={onTestInContrast}
           onKeyDown={handleSwatchKeyDown}
           stepCount={stepCount}
         />
@@ -161,6 +164,7 @@ export default function PaletteGrid({
           colorFormat={colorFormat}
           copiedSwatchId={copiedSwatchId}
           onCopy={handleCopy}
+          onTestInContrast={onTestInContrast}
           onSelectFamily={onSelectFamily}
           onKeyDown={handleSwatchKeyDown}
           stepCount={stepCount}
@@ -178,6 +182,7 @@ export default function PaletteGrid({
         onSelectFamily={onSelectFamily}
         copiedSwatchId={copiedSwatchId}
         onCopy={handleCopy}
+        onTestInContrast={onTestInContrast}
         onKeyDown={handleSwatchKeyDown}
         stepCount={stepCount}
       />
@@ -190,6 +195,7 @@ interface ViewSharedProps {
   colorFormat: ColorFormat;
   copiedSwatchId: string | null;
   onCopy: (text: string, copyId: string) => void;
+  onTestInContrast?: (color: string) => void;
   onSelectFamily: (id: string) => void;
   onKeyDown: (
     event: KeyboardEvent<HTMLButtonElement>,
@@ -246,6 +252,7 @@ function RowView({
   onSelectFamily,
   copiedSwatchId,
   onCopy,
+  onTestInContrast,
   onKeyDown,
   stepCount,
 }: ViewProps & { stepCount: number }) {
@@ -308,6 +315,7 @@ function RowView({
                       colorFormat={colorFormat}
                       copiedSwatchId={copiedSwatchId}
                       onCopy={onCopy}
+                      onTestInContrast={onTestInContrast}
                       onSelect={onSelectFamily}
                       onKeyDown={onKeyDown}
                       stepTextClass={stepLabel}
@@ -332,6 +340,7 @@ function ColumnView({
   onSelectFamily,
   copiedSwatchId,
   onCopy,
+  onTestInContrast,
   onKeyDown,
   stepCount,
 }: ViewProps & { stepCount: number }) {
@@ -425,6 +434,7 @@ function ColumnView({
                           colorFormat={colorFormat}
                           copiedSwatchId={copiedSwatchId}
                           onCopy={onCopy}
+                          onTestInContrast={onTestInContrast}
                           onSelect={onSelectFamily}
                           onKeyDown={onKeyDown}
                           size="compact"
@@ -450,6 +460,7 @@ function CompactGridView({
   colorFormat,
   copiedSwatchId,
   onCopy,
+  onTestInContrast,
   onSelectFamily,
   onKeyDown,
   stepCount,
@@ -513,6 +524,7 @@ function CompactGridView({
                       colorFormat={colorFormat}
                       copiedSwatchId={copiedSwatchId}
                       onCopy={onCopy}
+                      onTestInContrast={onTestInContrast}
                       onSelect={onSelectFamily}
                       onKeyDown={onKeyDown}
                       size="tiny"
