@@ -1,4 +1,9 @@
-import { buildGradientCss, createStopInLargestGap, sortGradientStops } from '@/lib/gradient';
+import {
+  buildGradientCss,
+  createStopId,
+  createStopInLargestGap,
+  sortGradientStops,
+} from '@/lib/gradient';
 import type { GradientStudioState } from '@/types/studio';
 
 const gradient: GradientStudioState = {
@@ -31,6 +36,10 @@ describe('gradient domain', () => {
     expect(buildGradientCss({ ...gradient, type: 'radial' }, true)).toContain(
       'radial-gradient(circle at center in oklab',
     );
+  });
+
+  it('creates unique stop ids', () => {
+    expect(createStopId()).not.toBe(createStopId());
   });
 
   it('adds a blended stop in the largest available gap', () => {

@@ -3,6 +3,13 @@ import type { GradientStop, GradientStudioState } from '@/types/studio';
 
 const clampPosition = (value: number): number => Math.min(Math.max(Math.round(value), 0), 100);
 
+let stopSequence = 0;
+
+export const createStopId = (): string => {
+  stopSequence += 1;
+  return `stop-${Date.now()}-${stopSequence}`;
+};
+
 export const sortGradientStops = (stops: GradientStop[]): GradientStop[] =>
   [...stops]
     .map((stop) => ({
