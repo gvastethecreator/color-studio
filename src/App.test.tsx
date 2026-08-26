@@ -129,11 +129,11 @@ describe('App', () => {
     const user = userEvent.setup();
     render(<App />);
 
-    await user.click(screen.getByRole('button', { name: /select palette color 2/i }));
+    await user.click(screen.getByRole('button', { name: /select palette color 1/i }));
     await user.click(screen.getByRole('button', { name: /test in contrast/i }));
 
     const foreground = await screen.findByLabelText(/^foreground$/i);
-    expect(foreground).toHaveValue('#BF9AFF');
+    expect(foreground).toHaveValue('#6D5DFC');
   });
 
   it('restores the previous scale settings through the reset undo action', async () => {
@@ -278,5 +278,32 @@ describe('App', () => {
   it('does not show Untitled color study chrome', () => {
     render(<App />);
     expect(screen.queryByText(/untitled color study/i)).not.toBeInTheDocument();
+  });
+
+  it('restores the previous palette through Generate undo', async () => {
+    const user = userEvent.setup();
+    render(
+      <ToastProvider>
+        <App />
+      </ToastProvider>,
+    );
+
+    const selected = screen.getByLabelText(/^color 1$/i);
+    await user.clear(selected);
+    await user.type(selected, '#FF0000');
+    await user.keyboard('{Enter}');
+    expect(
+      screen.getByRole('button', { name: /select palette color 1: #FF0000/i }),
+    ).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /^generate$/i }));
+    expect(
+      screen.getByRole('button', { name: /select palette color 1: #6D5DFC/i }),
+    ).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Undo' }));
+    expect(
+      screen.getByRole('button', { name: /select palette color 1: #FF0000/i }),
+    ).toBeInTheDocument();
   });
 });
