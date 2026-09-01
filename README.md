@@ -38,7 +38,7 @@
 
 ## Quick start
 
-Install Node.js 20.19 or newer and pnpm 11.20.0.
+Install Node.js 20.19 or newer and pnpm 12.0.0.
 
 ```sh
 pnpm install --frozen-lockfile
@@ -64,9 +64,8 @@ VS Code exposes the same common commands in `.vscode/tasks.json`.
 
 - [Documentation index](docs/README.md)
 - [Architecture](docs/architecture.md)
-- [Dependencies and upgrade notes](docs/dependencies.md)
-- [Maintenance reviews](docs/reviews/README.md)
-- [Technical debt](docs/TECHNICAL_DEBT.md)
+- [Dependencies](docs/dependencies.md)
+- [Security](SECURITY.md)
 
 ## Status
 

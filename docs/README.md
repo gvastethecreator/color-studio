@@ -1,23 +1,16 @@
 # Documentation
 
-This directory holds the project's technical and governance documentation.
+How to use and set up Color Studio.
 
-## Index
+## Guides
 
-- [architecture.md](architecture.md): module layout, data flow, and toolchain.
-- [dependencies.md](dependencies.md): runtime and dev dependency inventory
-  with rationale.
-- [WORKLOG.md](WORKLOG.md): change log for the recent modernization pass.
-- [TECHNICAL_DEBT.md](TECHNICAL_DEBT.md): known gaps and recommended next
-  steps.
-- [reviews/README.md](reviews/README.md): maintenance, architecture,
-  performance, UX, and quality evidence.
+- [Product overview and quick start](../README.md)
+- [Architecture](architecture.md)
+- [Dependencies](dependencies.md)
+- [Security reports](../SECURITY.md)
 
-## Convention
+## Generated
 
-Each doc answers one of four questions:
+- [Module map](codemap/codemap.md)
 
-1. What does the project do?
-2. How is it organized?
-3. Which dependencies are actually required?
-4. What is still pending or worth improving next?
+Product-tour screenshots live in `assets/screenshots/`.
